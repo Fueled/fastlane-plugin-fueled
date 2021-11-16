@@ -1,0 +1,77 @@
+fastlane_version "2.198.0"
+opt_out_usage
+
+platform :ios do
+  keychain_name = "temp"
+  keychain_password = "foo"
+
+  lane :app_center do
+    pre_build
+    define_versions_ios
+    set_app_versions_xcodeproj_ios
+    build
+    upload_to_app_center
+    tag
+    create_github_release
+    post_build
+  end
+
+  lane :app_store do
+    pre_build
+    define_versions_ios
+    set_app_versions_xcodeproj_ios
+    build
+    upload_to_testflight
+    tag
+    create_github_release
+    post_build
+  end
+
+  lane :tests do
+    run_tests(
+      workspace: ENV['WORKSPACE'],
+      devices: ["iPhone 13"],
+      scheme: ENV['SCHEME']
+    )
+  end
+
+  private_lane :pre_build do
+    create_keychain(
+      name: keychain_name,
+      default_keychain: true,
+      password: keychain_password,
+      unlock: true,
+      timeout: 0
+    )
+    install_wwdr_certificate(
+      keychain_name: keychain_name,
+      keychain_password: keychain_password
+    )
+    import_base64_certificates(
+      keychain_name: keychain_name,
+      keychain_password: keychain_password
+    )
+    install_profiles
+    generate_changelog
+  end
+
+  private_lane :post_build do
+    delete_keychain(
+      name: keychain_name
+    )
+  end
+
+  private_lane :build do
+    build_ios_app(
+      workspace: ENV['WORKSPACE'],
+      configuration: ENV['BUILD_CONFIGURATION'],
+      scheme: ENV['SCHEME'],
+      silent: true,
+      clean: false,
+      disable_xcpretty: false,
+      export_options: {
+        method: ENV['EXPORT_METHOD']
+      }
+    )
+  end
+end
