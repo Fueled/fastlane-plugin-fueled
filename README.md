@@ -25,7 +25,7 @@ Fueled specific.
   - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
   - [define_versions_ios](#user-content-define_versions_ios)
-  - [import_base_64_certificates](#user-content-import_base_64_certificates)
+  - [import_base_64_certificates](#user-content-import_base64_certificates)
   - [install_profiles](#user-content-install_profiles)
   - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
   - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
