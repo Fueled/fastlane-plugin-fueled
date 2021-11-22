@@ -27,7 +27,7 @@ module Fastlane
     class GenerateChangelogAction < Action
       def self.git_retrieve_commits(revision1, revision2)
         git_format = $git_format_info.map { |info| $git_format_selectors[info] }.join("\t")
-        return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\" | tac`
+        return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\" | tail -r`
       end
 
       def self.run(params)
