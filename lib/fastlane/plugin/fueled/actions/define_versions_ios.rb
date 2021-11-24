@@ -12,7 +12,10 @@ module Fastlane
         # Build Number
         Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number
         # Short Version
-        current_short_version = Helper::FueledHelper.short_version_ios(project_path: params[:project_path])
+        current_short_version = Helper::FueledHelper.short_version_ios(
+          project_path: params[:project_path],
+          scheme: params[:scheme]
+          )
         if current_short_version.split('.').first.to_i >= 1
           UI.important("Not bumping short version as it is higher or equal to 1.0.0")
           Actions.lane_context[SharedValues::SHORT_VERSION_STRING] = current_short_version
@@ -52,6 +55,13 @@ module Fastlane
             description: "The path to the project .xcodeproj",
             is_string: true,
             optional: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :scheme,
+            env_name: "SCHEME",
+            description: "The scheme to read the version from",
+            is_string: true,
+            optional: true
           ),
           FastlaneCore::ConfigItem.new(
             key: :bump_type,

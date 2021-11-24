@@ -18,11 +18,11 @@ module Fastlane
       # Returns the current short version. If the major version in the project or
       # plist is equal or greater than 1, it will be returned. Otherwise, the version
       # returned will be the one identified in the last git tag.
-      def self.short_version_ios(project_path:)
+      def self.short_version_ios(project_path:, scheme:)
         version = Actions::GetVersionNumberFromPlistAction.run(
           xcodeproj: project_path,
           target: nil,
-          scheme: nil,
+          scheme: scheme,
           build_configuration_name: nil
         )
         UI.important("No short version found in plist, looking in Xcodeproj...") if version.nil?
@@ -30,7 +30,7 @@ module Fastlane
           version = Actions::GetVersionNumberFromXcodeprojAction.run(
             xcodeproj: project_path,
             target: nil,
-            scheme: nil,
+            scheme: scheme,
             build_configuration_name: nil
           )
         end
