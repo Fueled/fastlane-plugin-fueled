@@ -5,7 +5,7 @@ module Fastlane
     class SetAppVersionsAndroidAction < Action
       def self.run(params)
         ENV['BUILD_VERSION_NAME'] = params[:short_version_string]
-        ENV['BUILD_NUMBER'] = params[:build_number]
+        ENV['FUELED_BUILD_NUMBER'] = params[:build_number]
       end
 
       #####################################################
@@ -33,7 +33,7 @@ module Fastlane
             env_name: "BUILD_NUMBER",
             description: "The build number (eg: 625)",
             optional: true,
-            default_value: Actions.lane_context[SharedValues::BUILD_NUMBER]
+            default_value: Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER]
           )
         ]
       end
