@@ -44,7 +44,7 @@ module Fastlane
             key: :build_number,
             description: "The build number (eg: 625)",
             optional: false,
-            default_value: Actions.lane_context[SharedValues::BUILD_NUMBER]
+            default_value: Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER]
           ),
           FastlaneCore::ConfigItem.new(
             key: :build_config,

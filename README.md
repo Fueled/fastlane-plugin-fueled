@@ -155,7 +155,7 @@ Only create a GH release if triggered on CI
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `short_version_string` <br/> NONE | The short version string (eg: 0.2.6) | `Actions.lane_context[SharedValues::SHORT_VERSION_STRING]` | |
-| `build_number` <br/> NONE | The build number (eg: 625) | `Actions.lane_context[SharedValues::BUILD_NUMBER]` |
+| `build_number` <br/> NONE | The build number (eg: 625) | `Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER]` |
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | `Debug` |
 | `repository_name` <br/> `REPOSITORY_NAME` | The repository name (eg: fueled/zenni-ios) | |
 | `github_token` <br/> `GITHUB_TOKEN` | A Github Token to interact with the GH APIs | |
@@ -165,7 +165,7 @@ Only create a GH release if triggered on CI
 
 Sets the new build version name and build number as shared values.
 
-This action sets shared values for build number (`SharedValues::BUILD_NUMBER`) and build version name (`SharedValues::SHORT_VERSION_STRING`).
+This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and build version name (`SharedValues::SHORT_VERSION_STRING`).
 Your Fastfile should use these values in a next step to set them to the project accordingly (set_app_versions_android or set_app_versions_android).
 
 | Key & Env Var | Description | Default Value
@@ -176,7 +176,7 @@ Your Fastfile should use these values in a next step to set them to the project 
 
 Sets the new CFBundleVersion and CFBundleShortVersion as shared values, without setting them in the project.
 
-This action sets shared values for `CFBundleVersion` (`SharedValues::BUILD_NUMBER`) and `CFBundleShortVersion` (`SharedValues::SHORT_VERSION_STRING`).
+This action sets shared values for `CFBundleVersion` (`SharedValues::FUELED_BUILD_NUMBER`) and `CFBundleShortVersion` (`SharedValues::SHORT_VERSION_STRING`).
 
 Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_xcodeproj_ios` or `set_app_versions_plist_ios`).
 
@@ -227,7 +227,7 @@ Update the Android app version using the passed parameters.
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
-| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::BUILD_NUMBER` |
+| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `set_app_versions_plist_ios`
 Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
@@ -237,7 +237,7 @@ Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundl
 | `project_path` <br/> `PROJECT_PATH` | The path to the project .xcodeproj |  |
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
-| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::BUILD_NUMBER` |
+| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `set_app_versions_xcodeproj_ios`
 Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
@@ -247,7 +247,7 @@ Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundle
 | `project_path` <br/> `PROJECT_PATH` | The path to the project .xcodeproj |  |
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
-| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::BUILD_NUMBER` |
+| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `tag`
 Tag the version using the following pattern : `v[short_version]#[build_number]-[build_config]`
@@ -258,7 +258,7 @@ Note that tagging happens only on CI
 |-----------------|--------------------|---|
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
-| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::BUILD_NUMBER` |
+| `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 ## Issues and Feedback
 
