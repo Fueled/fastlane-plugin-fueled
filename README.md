@@ -21,6 +21,7 @@ Fueled specific.
 * Common
   - [create_github_release](#user-content-create_github_release)
   - [generate_changelog](#user-content-generate_changelog)
+  - [move_linear_tickets](#user-content-move_linear_tickets)
   - [tag](#user-content-tag)
   - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
@@ -220,6 +221,19 @@ Pulls and adds the WWDR Apple Certificate to the given keychain
 |-----------------|--------------------|---|
 | `keychain_name` <br/> `KEYCHAIN_NAME` | The keychain name to install the certificates to | `login` |
 | `keychain_password` <br/> `KEYCHAIN_PASSWORD` | The keychain password to install the certificates to | |
+
+#### `move_linear_tickets`
+Automatically moves Linear tickets form a state to another one, for a specific team and a set of labels (comma separated).
+If any of the parameter is not provided, the action will emit a warning and be skipped.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `linear_api_key` <br/> `FUELED_LINEAR_API_KEY` | The Linear API key | |
+| `linear_team_id` <br/> `FUELED_LINEAR_TEAM_ID` | The Linear Team ID | |
+| `from_state` <br/> `FUELED_LINEAR_FROM_STATE` | The state ID to issues should be moved from | |
+| `to_state` <br/> `FUELED_LINEAR_TO_STATE` | The state ID to issues should be moved to | |
+| `labels` <br/> `FUELED_LINEAR_LABELS` | The label IDs of the tickets to filter with (comma separated for multiple) | |
+
 
 #### `set_app_versions_android`
 Update the Android app version using the passed parameters.
