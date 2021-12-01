@@ -5,7 +5,7 @@ module Fastlane
     class SetAppVersionsAndroidAction < Action
       def self.run(params)
         ENV['BUILD_VERSION_NAME'] = params[:short_version_string]
-        ENV['FUELED_BUILD_NUMBER'] = params[:build_number]
+        ENV['FUELED_BUILD_NUMBER'] = params[:build_number].to_s
       end
 
       #####################################################
