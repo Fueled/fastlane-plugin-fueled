@@ -7,11 +7,13 @@ module Fastlane
         version_string = "#{params[:build_number]}-#{params[:build_config]}"
         other_action.increment_version_number_in_xcodeproj(
           version_number: params[:short_version_string],
-            xcodeproj: params[:project_path]
+          xcodeproj: params[:project_path],
+          target: params[:scheme]
         )
         other_action.increment_build_number_in_xcodeproj(
           build_number: version_string,
-            xcodeproj: params[:project_path]
+          xcodeproj: params[:project_path],
+          target: params[:scheme]
         )
       end
 
@@ -29,6 +31,13 @@ module Fastlane
             key: :project_path,
             env_name: "PROJECT_PATH",
             description: "The path to the project .xcodeproj",
+            is_string: true,
+            optional: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :scheme,
+            env_name: "SCHEME",
+            description: "The scheme to set the version to",
             is_string: true,
             optional: false
           ),
