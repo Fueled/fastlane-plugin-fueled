@@ -53,27 +53,26 @@ module Fastlane
         end
 
         update_issue = lambda do |issue_id|
-            query = """
-              mutation {
-                issueUpdate(id: \"#{issue_id}\", input: { stateId: \"#{params[:to_state]}\" }) {
-                  success
-                }
+          query = """
+            mutation {
+            issueUpdate(id: \"#{issue_id}\", input: { stateId: \"#{params[:to_state]}\" }) {
+                success
               }
-            """
-            res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-              req = Net::HTTP::Post.new(uri)
-              req['Content-Type'] = 'application/json'
-              req['Authorization'] = "#{params[:linear_api_key]}"
-              req.body = JSON[{'query' => query}]
-              http.request(req)
-            end
-            res.body
+            }
+          """
+          res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+            req = Net::HTTP::Post.new(uri)
+            req['Content-Type'] = 'application/json'
+            req['Authorization'] = "#{params[:linear_api_key]}"
+            req.body = JSON[{'query' => query}]
+            http.request(req)
           end
+          res.body
+        end
 
         should_continue = true
         last_cursor = nil
-        while should_continue == true do 
-          begin
+        while should_continue == true do
           body = JSON.parse(get_issues.call(last_cursor))
           issues = body["data"]["team"]["issues"]
           nodes = issues["nodes"]
