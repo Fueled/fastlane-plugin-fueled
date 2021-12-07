@@ -34,6 +34,9 @@ Fueled specific.
 * Android
   - [define_versions_android](#user-content-define_versions_android)
   - [set_app_versions_android](#user-content-set_app_versions_android)
+* Flutter
+  - [define_versions_flutter](#user-content-define_versions_flutter)
+  - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
 
 ## Example
 We use `dotenv` files to specify most of the values being used by the actions. The advantage is that you can have several `dotenv` files, depending on the build target, or even the audience you intend to deliver the build to.
@@ -173,6 +176,17 @@ Your Fastfile should use these values in a next step to set them to the project 
 |-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
 
+#### `define_versions_flutter`
+
+Sets the new version (--build-name) and build number (--build-number) as shared values, without setting them in the pubspec.
+
+This action sets shared values for *build-number* (`SharedValues::FUELED_BUILD_NUMBER`) and *build-name*(`SharedValues::SHORT_VERSION_STRING`).
+Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_flutter`).
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+
 #### `define_versions_ios`
 
 Sets the new CFBundleVersion and CFBundleShortVersion as shared values, without setting them in the project.
@@ -242,6 +256,15 @@ Update the Android app version using the passed parameters.
 |-----------------|--------------------|---|
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
+
+#### `set_app_versions_flutter`
+Update the pubspec.yaml file with the passed short version, build number, and build configuration.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
+| `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
+| `build_number` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `set_app_versions_plist_ios`
 Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
