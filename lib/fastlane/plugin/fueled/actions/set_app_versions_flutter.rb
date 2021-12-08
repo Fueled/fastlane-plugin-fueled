@@ -9,7 +9,7 @@ module Fastlane
         full_version_string = "#{params[:short_version_string]}+#{version_string}"
         file_name = "pubspec.yaml"
         text = File.read(file_name)
-        new_contents = text.gsub(/version:\ \d+(\.\d+){0,2}\+[\da-zA-Z]+/, "version: #{full_version_string}")
+        new_contents = text.gsub(/version:\ \d+(\.\d+){0,2}\+[\da-zA-Z\-]+/, "version: #{full_version_string}")
         File.open(file_name, "w") { |file| 
           file.puts new_contents 
         }
