@@ -42,6 +42,22 @@ module Fastlane
         end
       end
 
+      # Returns the current short version. If the major version in the pubspec
+      # is equal or greater than 1, it will be returned. Otherwise, the version
+      # returned will be the one identified in the last git tag.
+      def self.short_version_flutter
+        file_name = "pubspec.yaml"
+        pubspec_content = File.read(file_name)
+        version = pubspec_content[/version:\ (\d+(\.\d+){0,2})\+[\da-zA-Z]+/m, 1]
+        UI.important("No short version found in the pubspec, will rely on git tags to find out the last short version.") if version.nil?
+        if !version.nil? && version.split('.').first.to_i >= 1
+          version
+        else
+          UI.important("App found in pubspec is lower than 1.0.0 (#{version}), reading the version from the last git tag.")
+          short_version_from_tag
+        end
+      end
+
       # Returns the current short version, only by reading the last tag.
       def self.short_version_from_tag
         last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
