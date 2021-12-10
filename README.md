@@ -268,6 +268,7 @@ Update the pubspec.yaml file with the passed short version, build number, and bu
 
 #### `set_app_versions_plist_ios`
 Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
+Note that an export method of `app-store` will trim the `CFBundleVersion` to only contain the build number.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -275,9 +276,11 @@ Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundl
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
+| `export_method` <br/> `EXPORT_METHOD` | The build export method (eg: app-store) | |
 
 #### `set_app_versions_xcodeproj_ios`
 Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
+Note that an export method of `app-store` will trim the `CFBundleVersion` to only contain the build number.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -285,6 +288,7 @@ Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundle
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
+| `export_method` <br/> `EXPORT_METHOD` | The build export method (eg: app-store) | |
 
 #### `tag`
 Tag the version using the following pattern : `v[short_version]#[build_number]-[build_config]`

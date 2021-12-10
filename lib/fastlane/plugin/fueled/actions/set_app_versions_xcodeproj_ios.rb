@@ -4,7 +4,12 @@ module Fastlane
   module Actions
     class SetAppVersionsXcodeprojIosAction < Action
       def self.run(params)
-        version_string = "#{params[:build_number]}-#{params[:build_config]}"
+        if params[:export_method] == "app-store"
+          version_string = "#{params[:build_number]}"
+        else
+          version_string = "#{params[:build_number]}-#{params[:build_config]}"
+        end
+        
         other_action.increment_version_number_in_xcodeproj(
           version_number: params[:short_version_string],
           xcodeproj: params[:project_path],
@@ -23,6 +28,10 @@ module Fastlane
 
       def self.description
         "Update the iOS app versions in the xcodeproj (CFBundleVersion & CFShortBundleVersion) using the passed parameters."
+      end
+
+      def self.details
+        "Note that an export method of `app-store` will trim the `CFBundleVersion` to only contain the build number."
       end
 
       def self.available_options
@@ -58,6 +67,12 @@ module Fastlane
             description: "The build number (eg: 625)",
             optional: true,
             default_value: Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER]
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :export_method,
+            env_name: "EXPORT_METHOD",
+            description: "The export method",
+            optional: false,
           )
         ]
       end
