@@ -31,6 +31,7 @@ Fueled specific.
   - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
   - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
   - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
+  - [upload_to_app_store](#user-content-upload_to_app_store)
 * Android
   - [define_versions_android](#user-content-define_versions_android)
   - [set_app_versions_android](#user-content-set_app_versions_android)
@@ -300,6 +301,34 @@ Note that tagging happens only on CI
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
+
+#### `upload_to_app_center`
+Upload the given file to app center.
+You need to pass custom distribution groups to properly target audiences.
+Note that it only runs on CI.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `api_token` <br/> `AC_API_TOKEN` | The API Token to interact with AppCenter APIs | |
+| `app_name` <br/> `AC_APP_NAME` | The app name as set in AppCenter | |
+| `file_path` | The path to the your app file | `Helper::FueledHelper.default_output_file` |
+| `mapping` | The path to the your Android app mapping file | |
+| `dsym` | The path to the your iOS app dysm file | |
+| `groups` <br/> `AC_DISTRIBUTION_GROUPS` | A comma separated list of distribution groups | |
+| `notify_testers` <br/> `AC_NOTIFY_TESTERS` | Should the testers be notified | |
+| `changelog` | The changelog for this release | |
+
+#### `upload_to_app_store`
+Upload the given file to the AppStore (TestFlight)
+This action uses an application specific password.
+Note that it only runs on CI.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `file_path` | The path to the your app file | `Helper::FueledHelper.default_output_file` |
+| `username` <br/> `TESTFLIGHT_USERNAME` | The app name as set in AppCenter | |
+| `password` <br/> `TESTFLIGHT_APP_SPECIFIC_PASSWORD` | The AppleId app specific password | |
+| `target_platform` | The target platform (`macos` | `ios` | `appletvos`) | `ios` |
 
 ## Issues and Feedback
 
