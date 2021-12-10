@@ -8,7 +8,7 @@ module Fastlane
     class UploadToAppStoreAction < Action
       def self.run(params)
         if other_action.is_ci
-          other_action.sh("xcrun altool --upload-app -t #{params[:target_platform]} -u #{params[:username]} -p #{params[:password]} -f #{params[:file_path]}")
+          other_action.sh(command: "xcrun altool --upload-app -t #{params[:target_platform]} -u #{params[:username]} -p #{params[:password]} -f #{params[:file_path]}")
         else
           UI.message("Not uploading #{params[:file_path]} as we're not on CI.")
         end
