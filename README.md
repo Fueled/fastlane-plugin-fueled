@@ -38,6 +38,8 @@ Fueled specific.
 * Flutter
   - [define_versions_flutter](#user-content-define_versions_flutter)
   - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
+* React Native
+  - [define_versions_react_native](#user-content-define_versions_react_native)
 
 ## Example
 We use `dotenv` files to specify most of the values being used by the actions. The advantage is that you can have several `dotenv` files, depending on the build target, or even the audience you intend to deliver the build to.
@@ -64,8 +66,8 @@ AC_APP_NAME=AppName
 AC_DISTRIBUTION_GROUPS="Alpha Release,Collaborators"
 AC_NOTIFY_TESTERS=true
 # Testflight
-TESTFLIGHT_APPLE_ID=$APPLE_ID
-FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=$APPLE_APP_PASSWORD
+TESTFLIGHT_USERNAME=$APPLE_ID
+TESTFLIGHT_APP_SPECIFIC_PASSWORD=$APPLE_APP_PASSWORD
 ```
 
 Here is a sample iOS Fastfile leveraging this plugin. 
@@ -199,6 +201,17 @@ Your Fastfile should use these values in a next step to set them to the project 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `project_path` <br/> `PROJECT_PATH` | The path to the project .xcodeproj |  |
+| `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+
+#### `define_versions_react_native`
+
+Sets the new version and build number as shared values, without setting them in the package.json file or the projects themselves.
+
+This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and version number (`SharedValues::SHORT_VERSION_STRING`).
+Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_plist_ios` and `set_app_versions_android`).
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
 
 #### `generate_changelog`
