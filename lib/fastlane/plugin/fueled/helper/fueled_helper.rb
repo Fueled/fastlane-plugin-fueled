@@ -58,6 +58,22 @@ module Fastlane
         end
       end
 
+      # Returns the current short version. If the major version in package.json
+      # is equal or greater than 1, it will be returned. Otherwise, the version
+      # returned will be the one identified in the last git tag.
+      def self.short_version_react_native
+        file_name = "package.json"
+        package_content = File.read(file_name)
+        version = package_content[/"version":\ "(\d+(\.\d+){0,2})"/m, 1]
+        UI.important("No short version found in #{file_name}, will rely on git tags to find out the last short version.") if version.nil?
+        if !version.nil? && version.split('.').first.to_i >= 1
+          version
+        else
+          UI.important("App found in #{file_name} is lower than 1.0.0 (#{version}), reading the version from the last git tag.")
+          short_version_from_tag
+        end
+      end
+
       # Returns the current short version, only by reading the last tag.
       def self.short_version_from_tag
         last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
