@@ -21,6 +21,7 @@ Fueled specific.
 * Common
   - [create_github_release](#user-content-create_github_release)
   - [generate_changelog](#user-content-generate_changelog)
+  - [is_build_necessary](#user-content-is_build_necessary)
   - [move_linear_tickets](#user-content-move_linear_tickets)
   - [tag](#user-content-tag)
   - [upload_to_app_center](#user-content-upload_to_app_center)
@@ -249,6 +250,15 @@ Pulls and adds the WWDR Apple Certificate to the given keychain
 |-----------------|--------------------|---|
 | `keychain_name` <br/> `KEYCHAIN_NAME` | The keychain name to install the certificates to | `login` |
 | `keychain_password` <br/> `KEYCHAIN_PASSWORD` | The keychain password to install the certificates to | |
+
+### `is_build_necessary`
+Defines if the build is necessary by looking up changes since the last tag for the same build configuration.<br/>
+If the number of revisions between the last tag matching the given build configuration, and HEAD is higher than 0, the action will return true.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
+| `force_necessary` <br/> `FORCE_NECESSARY` | If the lane should continue, regardless of changes being made or not | `false` |
 
 #### `move_linear_tickets`
 Automatically moves Linear tickets form a state to another one, for a specific team and a set of labels (comma separated).
