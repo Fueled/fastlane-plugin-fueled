@@ -36,7 +36,7 @@ module Fastlane
       end
 
       def self.run(params)
-        last_config_tag = other_action.last_git_tag(pattern: "v*-#{params[:build_config]}") || ""
+        last_config_tag = Helper::FueledHelper.last_git_tag(build_configuration: params[:build_config]) || ""
         if last_config_tag.empty?
           first_commit = sh("git rev-list --max-parents=0 HEAD | xargs echo -n")
           logs = git_retrieve_commits(first_commit, "HEAD")

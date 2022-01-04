@@ -22,7 +22,7 @@ module Fastlane
       end
 
       def self.commit_count(build_config:)
-        last_config_tag = other_action.last_git_tag(pattern: "v*-#{build_config}")
+        last_config_tag = Helper::FueledHelper.last_git_tag(build_configuration: build_config)
         sh("git rev-list #{last_config_tag}.. --count").strip.to_i
       end
 

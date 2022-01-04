@@ -10,7 +10,7 @@ module Fastlane
     class FueledHelper
       # Returns the new build number, by bumping the last git tag build number.
       def self.new_build_number
-        last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
+        last_tag = last_git_tag(build_configuration: nil) || "v0.0.0#0-None"
         last_build_number = (last_tag[/#(.*?)-/m, 1] || "0").to_i
         last_build_number + 1
       end
@@ -76,8 +76,19 @@ module Fastlane
 
       # Returns the current short version, only by reading the last tag.
       def self.short_version_from_tag
-        last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
+        last_tag = last_git_tag(build_configuration: nil) || "v0.0.0#0-None"
         last_tag[/v(.*?)[(#]/m, 1]
+      end
+
+      def self.last_git_tag(build_configuration:)
+        optional_pattern = build_configuration != nil ? "\'v*-#{build_configuration}\'" : ""
+        command = "git tag --sort=-refname --sort=-creatordate -l #{optional_pattern} | head -n 1"
+        UI.message("#{command}")
+        tag = `#{command}`.chomp
+        UI.message("#{tag}")
+        return tag
+      rescue
+        nil
       end
 
       # Bump a given semver version, by incrementing the appropriate
