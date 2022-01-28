@@ -63,6 +63,7 @@ P12_PASSWORD=$P12_PASSWORD
 BASE64_CERTIFICATE_INPUT=A_BASE64_ENCODED_P12_FILE
 # Appcenter
 AC_API_TOKEN=$APPCENTER_API_TOKEN
+AC_OWNER_NAME=OwnerName
 AC_APP_NAME=AppName
 AC_DISTRIBUTION_GROUPS="Alpha Release,Collaborators"
 AC_NOTIFY_TESTERS=true
@@ -333,6 +334,7 @@ Note that it only runs on CI.
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `api_token` <br/> `AC_API_TOKEN` | The API Token to interact with AppCenter APIs | |
+| `owner_name` <br/> `AC_OWNER_NAME` | The owner/organization name in AppCenter | `Fueled` |
 | `app_name` <br/> `AC_APP_NAME` | The app name as set in AppCenter | |
 | `file_path` | The path to the your app file | `Helper::FueledHelper.default_output_file` |
 | `mapping` | The path to the your Android app mapping file | |
