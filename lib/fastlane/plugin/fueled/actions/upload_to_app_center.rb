@@ -11,7 +11,7 @@ module Fastlane
           other_action.appcenter_upload(
             api_token: params[:api_token],
             owner_type: "organization",
-            owner_name: "Fueled",
+            owner_name: params[:owner_name],
             app_name: params[:app_name],
             mapping: params[:mapping],
             dsym: params[:dsym],
@@ -47,6 +47,14 @@ module Fastlane
             key: :api_token,
             env_name: "AC_API_TOKEN",
             description: "The API Token to interact with AppCenter APIs",
+            is_string: true
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :owner_name,
+            env_name: "AC_OWNER_NAME",
+            description: "The owner/organization name in AppCenter",
+            optional: true,
+            default_value: "Fueled",
             is_string: true
           ),
           FastlaneCore::ConfigItem.new(
