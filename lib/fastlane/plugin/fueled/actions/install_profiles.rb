@@ -9,12 +9,14 @@ module Fastlane
       def self.run(params)
         folder = params[:folder]
         UI.message("Crawling #{folder}...")
-        Dir.children(folder).each do |profile|
-          UI.message("Found #{profile}")
-          other_action.install_provisioning_profile(
-            path: File.join(folder, profile)
-          )
-        end
+        Dir.children(folder)
+          .filter { |f| /mobileprovision$/.match?(f) }
+          .each do |profile|
+            UI.message("Found #{profile}")
+            other_action.install_provisioning_profile(
+              path: File.join(folder, profile)
+            )
+          end
       end
 
       #####################################################
