@@ -8,6 +8,11 @@ module Fastlane
 
   module Helper
     class FueledHelper
+      # Returns if a string is nil or empty.
+      def self.nil_or_empty(input)
+        input.nil? || input.empty?
+      end
+      
       # Returns the new build number, by bumping the last git tag build number.
       def self.new_build_number
         last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"

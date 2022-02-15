@@ -10,11 +10,11 @@ module Fastlane
 
     class MoveLinearTicketsAction < Action
       def self.run(params)
-        if params[:from_state] == nil || 
-            params[:to_state] == nil || 
-            params[:labels] == nil || 
-            params[:linear_api_key] == nil ||
-            params[:linear_team_id] == nil
+        if Helper::FueledHelper.nil_or_empty(params[:from_state]) || 
+          Helper::FueledHelper.nil_or_empty(params[:to_state]) || 
+          Helper::FueledHelper.nil_or_empty(params[:labels]) || 
+          Helper::FueledHelper.nil_or_empty(params[:linear_api_key]) ||
+          Helper::FueledHelper.nil_or_empty(params[:linear_team_id])
             UI.important("Not updating Linear tickets because of missing parameters.")
             return
         end
