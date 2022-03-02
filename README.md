@@ -39,6 +39,9 @@ Fueled specific.
 * Flutter
   - [define_versions_flutter](#user-content-define_versions_flutter)
   - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
+  - [formatting_checks_flutter](#user-content-formatting_checks_flutter)
+  - [generate_files_flutter](#user-content-generate_files_flutter)
+  - [ci_checks_flutter](#user-content-ci_checks_flutter)
 * React Native
   - [define_versions_react_native](#user-content-define_versions_react_native)
 
@@ -72,7 +75,7 @@ TESTFLIGHT_USERNAME=$APPLE_ID
 TESTFLIGHT_APP_SPECIFIC_PASSWORD=$APPLE_APP_PASSWORD
 ```
 
-Here is a sample iOS Fastfile leveraging this plugin. 
+Here is a sample iOS Fastfile leveraging this plugin.
 
 ```
 fastlane_version "2.197.0"
@@ -111,7 +114,7 @@ platform :ios do
       scheme: ENV['SCHEME']
     )
   end
-  
+
   private_lane :pre_build do
     create_keychain(
       name: keychain_name,
@@ -354,6 +357,23 @@ Note that it only runs on CI.
 | `username` <br/> `TESTFLIGHT_USERNAME` | The app name as set in AppCenter | |
 | `password` <br/> `TESTFLIGHT_APP_SPECIFIC_PASSWORD` | The AppleId app specific password | |
 | `target_platform` | The target platform (`macos` | `ios` | `appletvos`) | `ios` |
+
+
+#### `formatting_checks_flutter`
+Check the formatting of the code using `flutter format`
+
+
+#### `generate_files_flutter`
+Performs code generation
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `build_variant` | The build variant used for generating files | `debug` |
+
+
+#### `ci_checks_flutter`
+Run tests and check code coverage
+
 
 ## Issues and Feedback
 
