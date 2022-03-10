@@ -1,4 +1,5 @@
 require_relative '../helper/fueled_helper'
+require 'slack-notifier'
 
 module Fastlane
   module Actions
@@ -7,6 +8,8 @@ module Fastlane
 
     class ImportBase64CertificatesAction < Action
       def self.run(params)
+        notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
+        notifier.ping "Started Deploying new build..."
         sh("mkdir -p tmp")
         sh("echo '#{params[:base64_input]}' | base64 -d -o tmp/certs.p12")
         other_action.import_certificate(

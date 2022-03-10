@@ -1,4 +1,5 @@
 require_relative '../helper/fueled_helper'
+require 'slack-notifier'
 
 module Fastlane
   module Actions
@@ -8,6 +9,8 @@ module Fastlane
     class UploadToAppCenterAction < Action
       def self.run(params)
         if other_action.is_ci
+          notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
+          notifier.ping "Deploying new build to appcenter..."
           other_action.appcenter_upload(
             api_token: params[:api_token],
             owner_type: "organization",

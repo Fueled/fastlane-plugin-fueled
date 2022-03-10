@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency('bundler')
   spec.add_development_dependency('fastlane', '>= 2.197.0')
+  spec.add_development_dependency('slack-notifier', '>= 2.4')
   spec.add_development_dependency('pry')
   spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec')
