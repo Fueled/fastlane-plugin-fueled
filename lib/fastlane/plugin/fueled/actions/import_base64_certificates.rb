@@ -8,7 +8,7 @@ module Fastlane
 
     class ImportBase64CertificatesAction < Action
       def self.run(params)
-        notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
+        notifier = Slack::Notifier.new "#{params[:slack_webhook_url]}"
         notifier.ping "Started Deploying new build..."
         sh("mkdir -p tmp")
         sh("echo '#{params[:base64_input]}' | base64 -d -o tmp/certs.p12")
@@ -30,6 +30,13 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(
+            key: :slack_webhook_url,
+            env_name: "SLACK_WEBHOOK_URL",
+            description: "Slack webhook url used to post messages",
+            is_string: true,
+            default_value: ""
+          ),
           FastlaneCore::ConfigItem.new(
             key: :base64_input,
             env_name: "BASE64_CERTIFICATE_INPUT",

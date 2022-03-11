@@ -9,7 +9,7 @@ module Fastlane
     class UploadToAppCenterAction < Action
       def self.run(params)
         if other_action.is_ci
-          notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
+          notifier = Slack::Notifier.new "#{params[:slack_webhook_url]}"
           notifier.ping "Deploying new build to appcenter..."
           other_action.appcenter_upload(
             api_token: params[:api_token],
@@ -46,6 +46,13 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(
+            key: :slack_webhook_url,
+            env_name: "SLACK_WEBHOOK_URL",
+            description: "Slack webhook url used to post messages",
+            is_string: true,
+            default_value: ""
+          ),
           FastlaneCore::ConfigItem.new(
             key: :api_token,
             env_name: "AC_API_TOKEN",
