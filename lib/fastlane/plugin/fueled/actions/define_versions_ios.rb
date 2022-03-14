@@ -10,6 +10,10 @@ module Fastlane
     class DefineVersionsIosAction < Action
       def self.run(params)
         # Build Number
+        puts "value of params is #{params}"
+        puts "value of slack_webhook_url is #{params[:slack_webhook_url]}"
+        
+        other_action.slack(message: "Deploying new build to appcenter...", slack_url: "#{params[:slack_webhook_url]}")
         Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number
         # Short Version
         current_short_version = Helper::FueledHelper.short_version_ios(
@@ -55,6 +59,13 @@ module Fastlane
             description: "The path to the project .xcodeproj",
             is_string: true,
             optional: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :slack_webhook_url,
+            env_name: "SLACK_WEBHOOK_URL",
+            description: "Slack webhook url used to post messages",
+            is_string: true,
+            default_value: "Default value"
           ),
           FastlaneCore::ConfigItem.new(
             key: :scheme,
