@@ -7,6 +7,7 @@ module Fastlane
       def self.run(params)
         variant = params[:build_variant]
         UI.message("Running Codegen for #{variant}")
+        sh("flutter pub get")
         sh("flutter pub run build_runner build --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\"")
         UI.message("Generating Localization files")
         sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
