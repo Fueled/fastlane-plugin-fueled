@@ -6,14 +6,19 @@ platform :ios do
   keychain_password = "foo"
 
   lane :app_center do
-    pre_build
-    define_versions_ios
-    set_app_versions_xcodeproj_ios
-    build
-    upload_to_app_center
-    tag
-    create_github_release
-    post_build
+    begin
+      pre_build
+      define_versions_ios
+      set_app_versions_xcodeproj_ios
+      build
+      upload_to_app_center
+      tag
+      create_github_release
+      post_build
+    rescue =>
+      puts "error building or deploying app"
+      other_action.slack(message: "Build failed to deploy.", slack_url: "#{params[:slack_webhook_url]}")
+    end
   end
 
   lane :app_store do
@@ -33,6 +38,18 @@ platform :ios do
       devices: ["iPhone 13"],
       scheme: ENV['SCHEME']
     )
+  end
+  
+  def self.available_options
+    [
+      FastlaneCore::ConfigItem.new(
+        key: :slack_webhook_url,
+        env_name: "SLACK_WEBHOOK_URL",
+        description: "Slack webhook url used to post messages",
+        is_string: true,
+        default_value: ""
+      ),
+    ]
   end
 
   private_lane :pre_build do

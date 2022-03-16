@@ -65,7 +65,7 @@ module Fastlane
             env_name: "SLACK_WEBHOOK_URL",
             description: "Slack webhook url used to post messages",
             is_string: true,
-            default_value: "Default value"
+            default_value: ""
           ),
           FastlaneCore::ConfigItem.new(
             key: :scheme,
