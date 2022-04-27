@@ -16,7 +16,8 @@ module Fastlane
           project_path: params[:project_path],
           scheme: params[:scheme]
         )
-        if current_short_version.split('.').first.to_i >= 1
+        disable_version_limit = ENV['DISABLE_VERSION_LIMIT'] == 'true'
+        if !disable_version_limit && current_short_version.split('.').first.to_i >= 1
           UI.important("Not bumping short version as it is higher or equal to 1.0.0")
           Actions.lane_context[SharedValues::SHORT_VERSION_STRING] = current_short_version
           return
