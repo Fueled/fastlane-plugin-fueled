@@ -107,7 +107,7 @@ module Fastlane
 
       $git_format_info = $git_format_selectors.map { |key, value| key }
 
-      def self.is_linear_issue(scope)
+      def self.is_ticket_assigned(scope)
         return scope.include?('-') && scope.split('-').count == 2 && !!/\A\d+\z/.match(scope.split('-').last)
       end
 
@@ -118,13 +118,17 @@ module Fastlane
         end
 
         scope.strip!
-        if is_linear_issue(scope)
+        if is_ticket_assigned(scope)
           formatted_scope = scope.upcase
+          base_url = ENV["TICKET_BASE_URL"]
+          if base_url == nil
+            base_url = "https://linear.app/fueled/issue/"
+          end
           case formatting_type
           when :github, :markdown
-            "[#{formatted_scope}](https://linear.app/fueled/issue/#{formatted_scope})"
+            "[#{formatted_scope}](#{base_url}#{formatted_scope})"
           when :slack
-            "<https://linear.app/fueled/issue/#{formatted_scope}|#{formatted_scope}>"
+            "<#{base_url}#{formatted_scope}|#{formatted_scope}>"
           when :plaintext
             formatted_scope
           end
@@ -196,7 +200,7 @@ module Fastlane
               base_message = (match_data[3][0, 1].upcase + match_data[3][1..-1]).chomp(".")
               line_info['type'] = match_data[1]
               scope_info = match_data[2].nil? ? [] : match_data[2].split('/')
-              if is_linear_issue(scope_info.first || '')
+              if is_ticket_assigned(scope_info.first || '')
                 line_info['scope'] = scope_info.first
                 line_info['message'] = base_message
               else
