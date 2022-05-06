@@ -12,18 +12,34 @@ module Fastlane
       def self.nil_or_empty(input)
         input.nil? || input.empty?
       end
+
+      # Returns the last tag in the repo, one can filter tags by specifying the parameter
+      def self.fetch_last_tag(filter:)
+        tag = nil
+        git_cmd = "git tag -l --sort=-creatordate"
+        if filter == nil
+           filter =""
+        end
+        git_cmd = git_cmd + "| grep -iF '#{filter}' -m 1"
+        begin
+          tag = Actions::sh(git_cmd)
+        rescue FastlaneCore::Interface::FastlaneShellError
+        end
+        tag
+      end
       
       # Returns the new build number, by bumping the last git tag build number.
-      def self.new_build_number
-        last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
+      def self.new_build_number(filter:)
+        last_tag = fetch_last_tag(filter: filter)
+        last_tag = last_tag || "v0.0.0#0-None"
         last_build_number = (last_tag[/#(.*?)-/m, 1] || "0").to_i
         last_build_number + 1
       end
 
-      # Returns the current short version. If the major version in the project or
+      # Returns the current short version. If the skip_version_limit flag is not set and the major version in the project or
       # plist is equal or greater than 1, it will be returned. Otherwise, the version
       # returned will be the one identified in the last git tag.
-      def self.short_version_ios(project_path:, scheme:)
+      def self.short_version_ios(project_path:, scheme:, skip_version_limit:, build_type:)
         version = Actions::GetVersionNumberFromPlistAction.run(
           xcodeproj: project_path,
           target: nil,
@@ -40,17 +56,17 @@ module Fastlane
           )
         end
         UI.important("No short version found in the project, will rely on git tags to find out the last short version.") if version.nil?
-        if !version.nil? && version.split('.').first.to_i >= 1
+        if !skip_version_limit && !version.nil? && version.split('.').first.to_i >= 1
           version
         else
-          short_version_from_tag
+          short_version_from_tag(filter:build_type)
         end
       end
 
       # Returns the current short version. If the major version in the pubspec
       # is equal or greater than 1, it will be returned. Otherwise, the version
       # returned will be the one identified in the last git tag.
-      def self.short_version_flutter
+      def self.short_version_flutter(build_type:)
         file_name = "pubspec.yaml"
         pubspec_content = File.read(file_name)
         version = pubspec_content[/version:\ (\d+(\.\d+){0,2})\+[\da-zA-Z]+/m, 1]
@@ -59,29 +75,30 @@ module Fastlane
           version
         else
           UI.important("App found in pubspec is lower than 1.0.0 (#{version}), reading the version from the last git tag.")
-          short_version_from_tag
+          short_version_from_tag(filter:build_type)
         end
       end
 
-      # Returns the current short version. If the major version in package.json
+      # Returns the current short version.  Returns the current short version. If the skip_version_limit flag is not set and the major version in package.json
       # is equal or greater than 1, it will be returned. Otherwise, the version
       # returned will be the one identified in the last git tag.
-      def self.short_version_react_native
+      def self.short_version_react_native(skip_version_limit:, build_type:)
         file_name = "package.json"
         package_content = File.read(file_name)
         version = package_content[/"version":\ "(\d+(\.\d+){0,2})"/m, 1]
         UI.important("No short version found in #{file_name}, will rely on git tags to find out the last short version.") if version.nil?
-        if !version.nil? && version.split('.').first.to_i >= 1
+        if !skip_version_limit && !version.nil? && version.split('.').first.to_i >= 1
           version
         else
           UI.important("App found in #{file_name} is lower than 1.0.0 (#{version}), reading the version from the last git tag.")
-          short_version_from_tag
+          short_version_from_tag(filter:build_type)
         end
       end
 
       # Returns the current short version, only by reading the last tag.
-      def self.short_version_from_tag
-        last_tag = Actions::LastGitTagAction.run(pattern: nil) || "v0.0.0#0-None"
+      def self.short_version_from_tag(filter:)
+        last_tag = fetch_last_tag(filter: filter)
+        last_tag = last_tag || "v0.0.0#0-None"
         last_tag[/v(.*?)[(#]/m, 1]
       end
 

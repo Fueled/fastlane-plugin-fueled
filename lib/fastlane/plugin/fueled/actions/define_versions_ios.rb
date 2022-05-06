@@ -10,14 +10,15 @@ module Fastlane
     class DefineVersionsIosAction < Action
       def self.run(params)
         # Build Number
-        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number
+        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number(filter:params[:build_type])
         # Short Version
         current_short_version = Helper::FueledHelper.short_version_ios(
           project_path: params[:project_path],
-          scheme: params[:scheme]
+          scheme: params[:scheme],
+          skip_version_limit: params[:disable_version_limit],
+          build_type: params[:build_type],
         )
-        disable_version_limit = ENV['DISABLE_VERSION_LIMIT'] == 'true'
-        if !disable_version_limit && current_short_version.split('.').first.to_i >= 1
+        if !params[:disable_version_limit] && current_short_version.split('.').first.to_i >= 1
           UI.important("Not bumping short version as it is higher or equal to 1.0.0")
           Actions.lane_context[SharedValues::SHORT_VERSION_STRING] = current_short_version
           return
@@ -71,6 +72,20 @@ module Fastlane
             optional: false,
             default_value: "none",
             verify_block: verify_block
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :disable_version_limit,
+            env_name: "DISABLE_VERSION_LIMIT",
+            description: "When true it skips the version limiting currently set for (1.x.x)+ versions",
+            optional: true,
+            is_string: false,
+            default_value: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :build_type,
+            env_name: "BUILD_TYPE",
+            description: "This is used to retrieve tag belonging to this build_type",
+            optional: true,
           )
         ]
       end
