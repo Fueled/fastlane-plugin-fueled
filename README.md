@@ -252,9 +252,10 @@ Generate a changelog.
 
 Changelog is made of commits between now, and the previous tag using the same build configuration
 
-| Key & Env Var | Description | Default Value
-|-----------------|--------------------|---|
-| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | `Debug` |
+| Key & Env Var | Description                                                     | Default Value
+|-----------------|-----------------------------------------------------------------|---|
+| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug)                             | `Debug` |
+| `ticket_base_url` <br/> `TICKET_BASE_URL` | The base url for tickets (eg. https://linear.app/fueled/issue/) | `https://linear.app/fueled/issue/` |
 
 #### `import_base64_certificates`
 
