@@ -63,7 +63,6 @@ REPOSITORY_NAME=$REPOSITORY_NAME
 WORKSPACE=App.xcworkspace
 PROJECT_PATH=App.xcodeproj
 BUILD_CONFIGURATION=Debug
-BUILD_TYPE=Snapshot
 SCHEME=SchemeToBuild
 EXPORT_METHOD=enterprise
 VERSION_BUMP_TYPE=minor
@@ -194,7 +193,7 @@ step to set them to the project accordingly (set_app_versions_android or set_app
 |-------------------------------------------------------|--------------------|---------------|
 | `bump_type` <br/> `VERSION_BUMP_TYPE`                 | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`        |
 | `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
-| `build_type` <br/> `BUILD_TYPE` | This is used to retrieve tag belonging to this build_type | `none`
+| `build_type` <br/> `BUILD_CONFIGURATION`              | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_flutter`
 
@@ -211,7 +210,7 @@ the `DISABLE_VERSION_LIMIT` environment variable is not set we cap the version b
 |-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
 | `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
-| `build_type` <br/> `BUILD_TYPE` | This is used to retrieve tag belonging to this build_type | `none`
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_ios`
 
@@ -229,7 +228,7 @@ accordingly (`set_app_versions_xcodeproj_ios` or `set_app_versions_plist_ios`).
 | `project_path` <br/> `PROJECT_PATH` | The path to the project .xcodeproj |  |
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
 | `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
-| `build_type` <br/> `BUILD_TYPE` | This is used to retrieve tag belonging to this build_type | `none`
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_react_native`
 
@@ -245,7 +244,7 @@ to set them to the project accordingly (`set_app_versions_plist_ios` and `set_ap
 |-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
 | `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
-| `build_type` <br/> `BUILD_TYPE` | This is used to retrieve tag belonging to this build_type | `none`
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `generate_changelog`
 
