@@ -4,7 +4,8 @@
 
 ## Getting Started
 
-This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-fueled`, add it to your project by adding:
+This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started
+with `fastlane-plugin-fueled`, add it to your project by adding:
 
 ```
 gem 'fastlane-plugin-fueled', git: "https://github.com/Fueled/fastlane-plugin-fueled"
@@ -12,45 +13,49 @@ gem 'fastlane-plugin-fueled', git: "https://github.com/Fueled/fastlane-plugin-fu
 
 ## About Fueled Fastlane plugin
 
-This plugin embeds build steps that we use in our CI/CD pipeline at Fueled.
-It has steps that could be reused easily by any project, on any platform (ios/android), and some others that are really
+This plugin embeds build steps that we use in our CI/CD pipeline at Fueled. It has steps that could
+be reused easily by any project, on any platform (ios/android), and some others that are really
 Fueled specific.
 
 ## Available Actions
 
 * Common
-  - [create_github_release](#user-content-create_github_release)
-  - [generate_changelog](#user-content-generate_changelog)
-  - [is_build_necessary](#user-content-is_build_necessary)
-  - [move_linear_tickets](#user-content-move_linear_tickets)
-  - [tag](#user-content-tag)
-  - [upload_to_app_center](#user-content-upload_to_app_center)
+    - [create_github_release](#user-content-create_github_release)
+    - [generate_changelog](#user-content-generate_changelog)
+    - [is_build_necessary](#user-content-is_build_necessary)
+    - [move_linear_tickets](#user-content-move_linear_tickets)
+    - [tag](#user-content-tag)
+    - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
-  - [define_versions_ios](#user-content-define_versions_ios)
-  - [import_base_64_certificates](#user-content-import_base64_certificates)
-  - [install_profiles](#user-content-install_profiles)
-  - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
-  - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
-  - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
-  - [upload_to_app_store](#user-content-upload_to_app_store)
+    - [define_versions_ios](#user-content-define_versions_ios)
+    - [import_base_64_certificates](#user-content-import_base64_certificates)
+    - [install_profiles](#user-content-install_profiles)
+    - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
+    - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
+    - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
+    - [upload_to_app_store](#user-content-upload_to_app_store)
 * Android
-  - [define_versions_android](#user-content-define_versions_android)
-  - [set_app_versions_android](#user-content-set_app_versions_android)
+    - [define_versions_android](#user-content-define_versions_android)
+    - [set_app_versions_android](#user-content-set_app_versions_android)
 * Flutter
-  - [define_versions_flutter](#user-content-define_versions_flutter)
-  - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
-  - [formatting_checks_flutter](#user-content-formatting_checks_flutter)
-  - [generate_files_flutter](#user-content-generate_files_flutter)
-  - [ci_checks_flutter](#user-content-ci_checks_flutter)
+    - [define_versions_flutter](#user-content-define_versions_flutter)
+    - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
+    - [formatting_checks_flutter](#user-content-formatting_checks_flutter)
+    - [generate_files_flutter](#user-content-generate_files_flutter)
+    - [ci_checks_flutter](#user-content-ci_checks_flutter)
 * React Native
-  - [define_versions_react_native](#user-content-define_versions_react_native)
+    - [define_versions_react_native](#user-content-define_versions_react_native)
 
 ## Example
-We use `dotenv` files to specify most of the values being used by the actions. The advantage is that you can have several `dotenv` files, depending on the build target, or even the audience you intend to deliver the build to.
+
+We use `dotenv` files to specify most of the values being used by the actions. The advantage is that
+you can have several `dotenv` files, depending on the build target, or even the audience you intend
+to deliver the build to.
 
 Note that sensitive data should be hosted outside of the dotenv file, and passed at build time.
 
 Here is an example of a `dotenv` file for the iOS platform :
+
 ```
 # General
 GITHUB_TOKEN=$GITHUB_TOKEN
@@ -158,6 +163,7 @@ end
 ```
 
 ## Parameters
+
 #### `create_github_release`
 
 Creates a Github Release for the given tag, and changelog
@@ -175,58 +181,81 @@ Only create a GH release if triggered on CI
 
 #### `define_versions_android`
 
-Sets the new build version name and build number as shared values.
+Sets the new build version name and build number as shared values. In case
+the `DISABLE_VERSION_LIMIT` environment variable is not set we cap the version bumping limit to
+1.x.x.
 
-This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and build version name (`SharedValues::SHORT_VERSION_STRING`).
-Your Fastfile should use these values in a next step to set them to the project accordingly (set_app_versions_android or set_app_versions_android).
+This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and build
+version name (`SharedValues::SHORT_VERSION_STRING`). Your Fastfile should use these values in a next
+step to set them to the project accordingly (set_app_versions_android or set_app_versions_android).
 
-| Key & Env Var | Description | Default Value
-|-----------------|--------------------|---|
-| `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+| Key & Env Var                                         | Description | Default Value
+|-------------------------------------------------------|--------------------|---------------|
+| `bump_type` <br/> `VERSION_BUMP_TYPE`                 | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`        |
+| `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
+| `build_type` <br/> `BUILD_CONFIGURATION`              | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_flutter`
 
-Sets the new version (--build-name) and build number (--build-number) as shared values, without setting them in the pubspec.
+Sets the new version (--build-name) and build number (--build-number) as shared values, without
+setting them in the pubspec.
 
-This action sets shared values for *build-number* (`SharedValues::FUELED_BUILD_NUMBER`) and *build-name*(`SharedValues::SHORT_VERSION_STRING`).
-Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_flutter`).
+This action sets shared values for *build-number* (`SharedValues::FUELED_BUILD_NUMBER`) and *
+build-name*(`SharedValues::SHORT_VERSION_STRING`). Your Fastfile should use these values in a next
+step to set them to the project accordingly (`set_app_versions_flutter`). In case
+the `DISABLE_VERSION_LIMIT` environment variable is not set we cap the version bumping limit to
+1.x.x.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+| `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_ios`
 
-Sets the new CFBundleVersion and CFBundleShortVersion as shared values, without setting them in the project.
+Sets the new CFBundleVersion and CFBundleShortVersion as shared values, without setting them in the
+project. In case the `` environment variable is not set we cap the version bumping limit to 1.x.x.
 
-This action sets shared values for `CFBundleVersion` (`SharedValues::FUELED_BUILD_NUMBER`) and `CFBundleShortVersion` (`SharedValues::SHORT_VERSION_STRING`).
+This action sets shared values for `CFBundleVersion` (`SharedValues::FUELED_BUILD_NUMBER`)
+and `CFBundleShortVersion` (`SharedValues::SHORT_VERSION_STRING`).
 
-Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_xcodeproj_ios` or `set_app_versions_plist_ios`).
+Your Fastfile should use these values in a next step to set them to the project
+accordingly (`set_app_versions_xcodeproj_ios` or `set_app_versions_plist_ios`).
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `project_path` <br/> `PROJECT_PATH` | The path to the project .xcodeproj |  |
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+| `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `define_versions_react_native`
 
-Sets the new version and build number as shared values, without setting them in the package.json file or the projects themselves.
+Sets the new version and build number as shared values, without setting them in the package.json
+file or the projects themselves.
 
-This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and version number (`SharedValues::SHORT_VERSION_STRING`).
-Your Fastfile should use these values in a next step to set them to the project accordingly (`set_app_versions_plist_ios` and `set_app_versions_android`).
+This action sets shared values for build number (`SharedValues::FUELED_BUILD_NUMBER`) and version
+number (`SharedValues::SHORT_VERSION_STRING`). Your Fastfile should use these values in a next step
+to set them to the project accordingly (`set_app_versions_plist_ios` and `set_app_versions_android`)
+.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `bump_type` <br/> `VERSION_BUMP_TYPE` | The version to bump (`major`, `minor`, `patch`, or `none`) | `none`
+| `disable_version_limit` <br/> `DISABLE_VERSION_LIMIT` | When true it skips the version limiting currently set for `1.x.x`+ versions | `false`       |
+| `build_type` <br/> `BUILD_CONFIGURATION` | This is used to retrieve tag belonging to this build_type | `none`
 
 #### `generate_changelog`
+
 Generate a changelog.
 
 Changelog is made of commits between now, and the previous tag using the same build configuration
 
-| Key & Env Var | Description | Default Value
-|-----------------|--------------------|---|
-| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | `Debug` |
+| Key & Env Var | Description                                                     | Default Value
+|-----------------|-----------------------------------------------------------------|---|
+| `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug)                             | `Debug` |
+| `ticket_base_url` <br/> `TICKET_BASE_URL` | The base url for tickets (eg. https://linear.app/fueled/issue/) | `https://linear.app/fueled/issue/` |
 
 #### `import_base64_certificates`
 
@@ -248,6 +277,7 @@ Install provisioning profiles from the given folder
 | `folder` <br/> `PROFILES_FOLDER` | The folder where the provisioning profiles are stored | `fastlane/profiles` |
 
 #### `install_wwdr_certificate`
+
 Pulls and adds the WWDR Apple Certificate to the given keychain
 
 | Key & Env Var | Description | Default Value
@@ -256,8 +286,11 @@ Pulls and adds the WWDR Apple Certificate to the given keychain
 | `keychain_password` <br/> `KEYCHAIN_PASSWORD` | The keychain password to install the certificates to | |
 
 ### `is_build_necessary`
-Defines if the build is necessary by looking up changes since the last tag for the same build configuration.<br/>
-If the number of revisions between the last tag matching the given build configuration, and HEAD is higher than 0, the action will return true.
+
+Defines if the build is necessary by looking up changes since the last tag for the same build
+configuration.<br/>
+If the number of revisions between the last tag matching the given build configuration, and HEAD is
+higher than 0, the action will return true.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -265,8 +298,10 @@ If the number of revisions between the last tag matching the given build configu
 | `force_necessary` <br/> `FORCE_NECESSARY` | If the lane should continue, regardless of changes being made or not | `false` |
 
 #### `move_linear_tickets`
-Automatically moves Linear tickets form a state to another one, for a specific team and a set of labels (comma separated).
-If any of the parameter is not provided, the action will emit a warning and be skipped.
+
+Automatically moves Linear tickets form a state to another one, for a specific team and a set of
+labels (comma separated). If any of the parameter is not provided, the action will emit a warning
+and be skipped.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -276,8 +311,8 @@ If any of the parameter is not provided, the action will emit a warning and be s
 | `to_state` <br/> `FUELED_LINEAR_TO_STATE` | The state ID to issues should be moved to | |
 | `labels` <br/> `FUELED_LINEAR_LABELS` | The label IDs of the tickets to filter with (comma separated for multiple) | |
 
-
 #### `set_app_versions_android`
+
 Update the Android app version using the passed parameters.
 
 | Key & Env Var | Description | Default Value
@@ -286,6 +321,7 @@ Update the Android app version using the passed parameters.
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `set_app_versions_flutter`
+
 Update the pubspec.yaml file with the passed short version, build number, and build configuration.
 
 | Key & Env Var | Description | Default Value
@@ -295,8 +331,10 @@ Update the pubspec.yaml file with the passed short version, build number, and bu
 | `build_number` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `set_app_versions_plist_ios`
-Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
-Note that an export method of `app-store` will trim the `CFBundleVersion` to only contain the build number.
+
+Update the iOS app versions in the plist file (`CFBundleVersion` & `CFShortBundleVersion`) using the
+passed parameters. Note that an export method of `app-store` will trim the `CFBundleVersion` to only
+contain the build number.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -307,8 +345,10 @@ Note that an export method of `app-store` will trim the `CFBundleVersion` to onl
 | `export_method` <br/> `EXPORT_METHOD` | The build export method (eg: app-store) | |
 
 #### `set_app_versions_xcodeproj_ios`
-Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundleVersion`) using the passed parameters.
-Note that an export method of `app-store` will trim the `CFBundleVersion` to only contain the build number.
+
+Update the iOS app versions in the xcodeproj (`CFBundleVersion` & `CFShortBundleVersion`) using the
+passed parameters. Note that an export method of `app-store` will trim the `CFBundleVersion` to only
+contain the build number.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -319,6 +359,7 @@ Note that an export method of `app-store` will trim the `CFBundleVersion` to onl
 | `export_method` <br/> `EXPORT_METHOD` | The build export method (eg: app-store) | |
 
 #### `tag`
+
 Tag the version using the following pattern : `v[short_version]#[build_number]-[build_config]`
 
 Note that tagging happens only on CI
@@ -330,9 +371,9 @@ Note that tagging happens only on CI
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 
 #### `upload_to_app_center`
-Upload the given file to app center.
-You need to pass custom distribution groups to properly target audiences.
-Note that it only runs on CI.
+
+Upload the given file to app center. You need to pass custom distribution groups to properly target
+audiences. Note that it only runs on CI.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -347,9 +388,9 @@ Note that it only runs on CI.
 | `changelog` | The changelog for this release | |
 
 #### `upload_to_app_store`
+
 Upload the given file to the AppStore (TestFlight)
-This action uses an application specific password.
-Note that it only runs on CI.
+This action uses an application specific password. Note that it only runs on CI.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
@@ -358,22 +399,21 @@ Note that it only runs on CI.
 | `password` <br/> `TESTFLIGHT_APP_SPECIFIC_PASSWORD` | The AppleId app specific password | |
 | `target_platform` | The target platform (`macos` | `ios` | `appletvos`) | `ios` |
 
-
 #### `formatting_checks_flutter`
+
 Check the formatting of the code using `flutter format`
 
-
 #### `generate_files_flutter`
+
 Performs code generation
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `build_variant` | The build variant used for generating files | `debug` |
 
-
 #### `ci_checks_flutter`
-Run tests and check code coverage
 
+Run tests and check code coverage
 
 ## Issues and Feedback
 
@@ -381,12 +421,15 @@ For any other issues and feedback about this plugin, please submit it to this re
 
 ## Troubleshooting
 
-If you have trouble using plugins, check out the [Plugins Troubleshooting](https://docs.fastlane.tools/plugins/plugins-troubleshooting/) guide.
+If you have trouble using plugins, check out
+the [Plugins Troubleshooting](https://docs.fastlane.tools/plugins/plugins-troubleshooting/) guide.
 
 ## Using _fastlane_ Plugins
 
-For more information about how the `fastlane` plugin system works, check out the [Plugins documentation](https://docs.fastlane.tools/plugins/create-plugin/).
+For more information about how the `fastlane` plugin system works, check out
+the [Plugins documentation](https://docs.fastlane.tools/plugins/create-plugin/).
 
 ## About _fastlane_
 
-_fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
+_fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android
+apps. To learn more, check out [fastlane.tools](https://fastlane.tools).

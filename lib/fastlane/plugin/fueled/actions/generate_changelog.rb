@@ -43,11 +43,11 @@ module Fastlane
         else
           logs = git_retrieve_commits(last_config_tag, "HEAD")
         end
-        changelog_github = format_logs(logs, :github, true)
-        changelog_slack_dev = format_logs(logs, :slack, true)
-        changelog_slack_public = format_logs(logs, :slack, false)
-        changelog_plaintext_public = format_logs(logs, :plaintext, false)
-        changelog_markdown_public = format_logs(logs, :markdown, false)
+        changelog_github = format_logs(logs, :github, true, params[:ticket_base_url])
+        changelog_slack_dev = format_logs(logs, :slack, true, params[:ticket_base_url])
+        changelog_slack_public = format_logs(logs, :slack, false, params[:ticket_base_url])
+        changelog_plaintext_public = format_logs(logs, :plaintext, false, params[:ticket_base_url])
+        changelog_markdown_public = format_logs(logs, :markdown, false, params[:ticket_base_url])
         Actions.lane_context[SharedValues::CHANGELOG_GITHUB] = changelog_github
         Actions.lane_context[SharedValues::CHANGELOG_SLACK_DEV] = changelog_slack_dev
         Actions.lane_context[SharedValues::CHANGELOG_SLACK_PUBLIC] = changelog_slack_public
@@ -75,7 +75,14 @@ module Fastlane
             description: "The build configuration (eg: Debug)",
             optional: true,
             default_value: "Debug"
-          )
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :ticket_base_url,
+            env_name: "TICKET_BASE_URL",
+            description: "The base url of the tickets for eg. https://linear.app/fueled/issue/",
+            optional: true,
+            default_value: "https://linear.app/fueled/issue/"
+          ),
         ]
       end
 
@@ -107,24 +114,24 @@ module Fastlane
 
       $git_format_info = $git_format_selectors.map { |key, value| key }
 
-      def self.is_linear_issue(scope)
+      def self.is_ticket_assigned(scope)
         return scope.include?('-') && scope.split('-').count == 2 && !!/\A\d+\z/.match(scope.split('-').last)
       end
 
-      def self.format_scope(scope, formatting_type)
+      def self.format_scope(scope, formatting_type, ticket_base_url)
         scopes = scope.split(',')
         if scopes.count > 1
-          return scopes.map { |s| format_scope(s, formatting_type) }.join(', ')
+          return scopes.map { |s| format_scope(s, formatting_type, ticket_base_url) }.join(', ')
         end
 
         scope.strip!
-        if is_linear_issue(scope)
+        if is_ticket_assigned(scope)
           formatted_scope = scope.upcase
           case formatting_type
           when :github, :markdown
-            "[#{formatted_scope}](https://linear.app/fueled/issue/#{formatted_scope})"
+            "[#{formatted_scope}](#{ticket_base_url}#{formatted_scope})"
           when :slack
-            "<https://linear.app/fueled/issue/#{formatted_scope}|#{formatted_scope}>"
+            "<#{ticket_base_url}#{formatted_scope}|#{formatted_scope}>"
           when :plaintext
             formatted_scope
           end
@@ -133,7 +140,7 @@ module Fastlane
         end
       end
 
-      def self.format_logs(logs, formatting_type, dev = false)
+      def self.format_logs(logs, formatting_type, dev = false, ticket_base_url)
         return nil unless logs && !logs.empty?
 
         other_type = 'other'
@@ -196,11 +203,11 @@ module Fastlane
               base_message = (match_data[3][0, 1].upcase + match_data[3][1..-1]).chomp(".")
               line_info['type'] = match_data[1]
               scope_info = match_data[2].nil? ? [] : match_data[2].split('/')
-              if is_linear_issue(scope_info.first || '')
+              if is_ticket_assigned(scope_info.first || '')
                 line_info['scope'] = scope_info.first
                 line_info['message'] = base_message
               else
-                scope_info.map! { |s| format_scope(s, formatting_type) }
+                scope_info.map! { |s| format_scope(s, formatting_type, ticket_base_url) }
                 if scope_info.count <= 1
                   line_info['scope'] = scope_info.first
                   line_info['message'] = base_message
@@ -248,9 +255,9 @@ module Fastlane
             unless scope.nil? || scope.empty?
               case formatting_type
               when :github, :markdown
-                changelog_lines << "##### #{format_scope(scope.dup, formatting_type)}"
+                changelog_lines << "##### #{format_scope(scope.dup, formatting_type, ticket_base_url)}"
               when :slack
-                changelog_lines << "- _#{format_scope(scope.dup, formatting_type)}_"
+                changelog_lines << "- _#{format_scope(scope.dup, formatting_type, ticket_base_url)}_"
               when :plaintext
                 changelog_lines << "> #{scope}"
               end
