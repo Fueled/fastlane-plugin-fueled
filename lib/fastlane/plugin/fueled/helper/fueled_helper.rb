@@ -98,7 +98,7 @@ module Fastlane
       # Returns the current short version, only by reading the last tag.
       def self.short_version_from_tag(filter:)
         last_tag = fetch_last_tag(filter: filter)
-        last_tag = last_tag || "v0.0.0#0-None"
+        last_tag = (last_tag.nil? || last_tag.empty?) ?  "v0.0.0#0-None" : last_tag
         last_tag[/v(.*?)[(#]/m, 1]
       end
 
