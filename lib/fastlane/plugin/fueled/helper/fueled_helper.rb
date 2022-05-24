@@ -16,7 +16,7 @@ module Fastlane
       # Returns the last tag in the repo, one can filter tags by specifying the parameter
       def self.fetch_last_tag(filter:)
         tag = nil
-        git_cmd = "git tag -l --sort=-creatordate"
+        git_cmd = "git tag -l --sort=-refname"
         if filter == nil
            filter =""
         end
