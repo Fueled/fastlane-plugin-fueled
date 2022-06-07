@@ -33,7 +33,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :skip_integration_tests,
             env_name: "SKIP_INTEGRATION_TESTS",
-            description: "If true, only unit tests are executed",
+            description: "If true, integration tests will be skipped",
             optional: true,
             is_string: false,
             default_value: false
