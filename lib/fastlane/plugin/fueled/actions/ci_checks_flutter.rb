@@ -14,8 +14,10 @@ module Fastlane
         sh("flutter test --coverage")
         sh("genhtml -o coverage coverage/lcov.info")
         sh("flutter test test/essentials.dart")
-        UI.message("Running integration tests")
-        sh("flutter test integration_test")
+        if !params[:skip_integration_tests]
+          UI.message("Running integration tests")
+          sh("flutter test integration_test")
+        end
       end
 
       #####################################################
@@ -25,6 +27,20 @@ module Fastlane
       def self.description
         "Run tests and check code coverage"
       end
+
+      def self.available_options
+        [
+          FastlaneCore::ConfigItem.new(
+            key: :skip_integration_tests,
+            env_name: "SKIP_INTEGRATION_TESTS",
+            description: "If true, only unit tests are executed",
+            optional: true,
+            is_string: false,
+            default_value: false
+          )
+        ]
+      end
+
 
       def self.authors
         ["fueled"]
