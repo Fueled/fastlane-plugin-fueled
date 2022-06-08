@@ -46,6 +46,10 @@ module Fastlane
           scheme: scheme,
           build_configuration_name: nil
         )
+        if !version.split('.').first.match?(/[[:digit:]]/)
+          UI.important("Version found in plist is not digit: #{version}")
+          version = nil
+        end
         UI.important("No short version found in plist, looking in Xcodeproj...") if version.nil?
         if version.nil?
           version = Actions::GetVersionNumberFromXcodeprojAction.run(
@@ -57,6 +61,7 @@ module Fastlane
         end
         UI.important("No short version found in the project, will rely on git tags to find out the last short version.") if version.nil?
         if !skip_version_limit && !version.nil? && version.split('.').first.to_i >= 1
+          UI.important("Version: #{version}")
           version
         else
           short_version_from_tag(filter:build_type)
@@ -97,6 +102,7 @@ module Fastlane
 
       # Returns the current short version, only by reading the last tag.
       def self.short_version_from_tag(filter:)
+        UI.important("Setting short_version from most recent tag")
         last_tag = fetch_last_tag(filter: filter)
         last_tag = (last_tag.nil? || last_tag.empty?) ?  "v0.0.0#0-None" : last_tag
         last_tag[/v(.*?)[(#]/m, 1]
