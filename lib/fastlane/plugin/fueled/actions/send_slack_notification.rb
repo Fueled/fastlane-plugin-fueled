@@ -5,30 +5,19 @@ module Fastlane
     module SharedValues
     end
 
-    class UploadToAppCenterAction < Action
+    class SendSlackNotificationAction < Action
       def self.run(params)
+        UI.message("Test Slack Action")
         if other_action.is_ci
-          other_action.appcenter_upload(
-            api_token: params[:api_token],
-            owner_type: "organization",
-            owner_name: params[:owner_name],
-            app_name: params[:app_name],
-            mapping: params[:mapping],
-            dsym: params[:dsym],
-            file: params[:file_path],
-            destinations: (params[:groups]).to_s,
-            destination_type: "group",
-            notify_testers: params[:notify_testers],
-            release_notes: params[:changelog]
-          )
+          #if params[:slack_notify_channel] == true
+          #  if appcenter_fetch_version_number[:build_number] == Helper::FueledHelper.new_build_number
+          #    other_action.slack(message: "Uploaded succeeded!", channel: params[:slack_channel])
+          #  else
+          #    other_action.slack(message: "Uploaded failed...", channel: params[:slack_channel])
+          #  end
+          #end
         else
-          UI.message("Not uploading #{params[:file_path]} as we're not on CI.")
-          UI.message("SLACK URL: #{ENV["SLACK_URL"]}")
-          other_action.slack(
-            message: "Yet another test message",
-            default_payloads: []
-          )
-          UI.message("Attempted Slack message")
+          UI.message("Not sending #{params[:file_path]} as we're not on CI.")
         end
       end
 
