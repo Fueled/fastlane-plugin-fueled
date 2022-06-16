@@ -46,7 +46,7 @@ module Fastlane
           scheme: scheme,
           build_configuration_name: nil
         )
-        if !version.split('.').first.match?(/[[:digit:]]/)
+        if version != nil && !version.split('.').first.match?(/[[:digit:]]/)
           UI.important("Version found in plist is not digit: #{version}")
           version = nil
         end
