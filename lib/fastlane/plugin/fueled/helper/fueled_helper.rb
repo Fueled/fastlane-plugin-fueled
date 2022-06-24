@@ -44,7 +44,7 @@ module Fastlane
           xcodeproj: project_path,
           target: nil,
           scheme: scheme,
-          build_configuration_name: nil
+          build_configuration_name: build_type
         )
         if version != nil && !version.split('.').first.match?(/[[:digit:]]/)
           UI.important("Version found in plist is not digit: #{version}")
@@ -56,7 +56,7 @@ module Fastlane
             xcodeproj: project_path,
             target: nil,
             scheme: scheme,
-            build_configuration_name: nil
+            build_configuration_name: build_type
           )
         end
         UI.important("No short version found in the project, will rely on git tags to find out the last short version.") if version.nil?
