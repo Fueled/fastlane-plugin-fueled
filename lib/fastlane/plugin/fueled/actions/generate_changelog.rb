@@ -36,7 +36,7 @@ module Fastlane
       end
 
       def self.run(params)
-        last_config_tag = other_action.last_git_tag(pattern: "v*-#{params[:build_config]}*") || ""
+        last_config_tag = other_action.last_git_tag(pattern: "v*-#{params[:build_config]}*#{params[:suffix]}*") || ""
         if last_config_tag.empty?
           first_commit = sh("git rev-list --max-parents=0 HEAD | xargs echo -n")
           logs = git_retrieve_commits(first_commit, "HEAD")
@@ -83,6 +83,13 @@ module Fastlane
             optional: true,
             default_value: "https://linear.app/fueled/issue/"
           ),
+          FastlaneCore::ConfigItem.new(
+            key: :suffix,
+            env_name: "SUFFIX",
+            description: "The suffix used to distinguish platforms with shared codebase (eg: -iOS, -macOS)",
+            optional: false,
+            default_value: ""
+          )
         ]
       end
 
