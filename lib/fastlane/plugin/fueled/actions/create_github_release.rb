@@ -7,7 +7,7 @@ module Fastlane
 
     class CreateGithubReleaseAction < Action
       def self.run(params)
-        tag_name = "v#{params[:short_version_string]}##{params[:build_number]}-#{params[:build_config]}"
+        tag_name = Actions.lane_context[SharedValues::TAG_NAME]
         release_name = "v#{params[:short_version_string]} / #{params[:build_number]}-#{params[:build_config]}"
         if other_action.is_ci
           other_action.set_github_release(
