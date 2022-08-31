@@ -8,7 +8,7 @@ module Fastlane
 
     class TagAction < Action
       def self.run(params)
-        tag_name = "v#{params[:short_version_string]}##{params[:build_number]}-#{params[:build_config]}"
+        tag_name = "v#{params[:short_version_string]}##{params[:build_number]}-#{params[:build_config]}#{params[:suffix]}"
         Actions.lane_context[SharedValues::TAG_NAME] = tag_name
         if other_action.is_ci
           UI.message("Tagging #{tag_name}...")
@@ -50,6 +50,12 @@ module Fastlane
             env_name: "BUILD_CONFIGURATION",
             description: "The build configuration (eg: Debug)",
             optional: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :suffix,
+            env_name: "SUFFIX",
+            description: "The suffix used to distinguish platforms with shared codebase (eg: -iOS, -macOS)",
+            optional: true
           )
         ]
       end

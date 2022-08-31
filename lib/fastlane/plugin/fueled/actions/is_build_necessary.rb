@@ -8,7 +8,7 @@ module Fastlane
 
     class IsBuildNecessaryAction < Action
       def self.run(params)
-        if params[:force_necessary] || commit_count(build_config: params[:build_config]) > 0
+        if params[:force_necessary] || has_recent_commits(build_config: params[:build_config], suffix: params[:suffix])
             UI.important("Build is required.")
             Actions.lane_context[SharedValues::IS_BUILD_NECESSARY] = true
             true
@@ -21,9 +21,15 @@ module Fastlane
         true
       end
 
-      def self.commit_count(build_config:)
-        last_config_tag = other_action.last_git_tag(pattern: "v*-#{build_config}")
-        sh("git rev-list #{last_config_tag}.. --count").strip.to_i
+      def self.has_recent_commits(build_config:, suffix:)
+        last_config_tag = other_action.last_git_tag(pattern: "v*-#{build_config}*#{suffix}*") || ""
+        if last_config_tag.empty?
+          # No previous tag should start a build and intialize a starting tag
+          true
+        else
+          number_of_commits = sh("git rev-list #{last_config_tag}.. --count").strip.to_i
+          number_of_commits > 0
+        end
       end
 
       #####################################################
@@ -55,6 +61,13 @@ module Fastlane
             description: "If the lane should continue, regardless of changes being made or not",
             optional: false,
             default_value: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :suffix,
+            env_name: "SUFFIX",
+            description: "The suffix used to distinguish platforms with shared codebase (eg: -iOS, -macOS)",
+            optional: false,
+            default_value: ""
           )
         ]
       end
