@@ -10,13 +10,14 @@ module Fastlane
     class DefineVersionsIosAction < Action
       def self.run(params)
         # Build Number
-        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number(filter: '')
+        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number(filter: params[:suffix])
         # Short Version
         current_short_version = Helper::FueledHelper.short_version_ios(
           project_path: params[:project_path],
           scheme: params[:scheme],
           skip_version_limit: params[:disable_version_limit],
           build_type: params[:build_type],
+          suffix: params[:suffix]
         )
         if !params[:disable_version_limit] && current_short_version.split('.').first.to_i >= 1
           UI.important("Not bumping short version as it is higher or equal to 1.0.0")
@@ -86,6 +87,13 @@ module Fastlane
             env_name: "BUILD_CONFIGURATION",
             description: "This is used to retrieve tag belonging to this build_type",
             optional: true,
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :suffix,
+            env_name: "SUFFIX",
+            description: "The suffix used to distinguish platforms with shared codebase (eg: -iOS, -macOS)",
+            optional: false,
+            default_value: ""
           )
         ]
       end

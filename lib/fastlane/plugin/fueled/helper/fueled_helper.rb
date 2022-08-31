@@ -27,7 +27,7 @@ module Fastlane
         end
         tag
       end
-      
+
       # Returns the new build number, by bumping the last git tag build number.
       def self.new_build_number(filter:)
         last_tag = fetch_last_tag(filter: filter)
@@ -39,7 +39,7 @@ module Fastlane
       # Returns the current short version. If the skip_version_limit flag is not set and the major version in the project or
       # plist is equal or greater than 1, it will be returned. Otherwise, the version
       # returned will be the one identified in the last git tag.
-      def self.short_version_ios(project_path:, scheme:, skip_version_limit:, build_type:)
+      def self.short_version_ios(project_path:, scheme:, skip_version_limit:, build_type:, suffix:)
         version = Actions::GetVersionNumberFromPlistAction.run(
           xcodeproj: project_path,
           target: nil,
@@ -64,7 +64,8 @@ module Fastlane
           UI.important("Version: #{version}")
           version
         else
-          short_version_from_tag(filter:build_type)
+          filter = build_type + suffix
+          short_version_from_tag(filter:filter)
         end
       end
 
