@@ -39,7 +39,7 @@ module Fastlane
             description: "Whether to skip generating the localization files",
             optional: true,
             is_string: false,
-            default_value: true
+            default_value: false
           ),
         ]
       end
