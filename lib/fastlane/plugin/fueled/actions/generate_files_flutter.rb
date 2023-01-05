@@ -9,9 +9,11 @@ module Fastlane
         UI.message("Running Codegen for #{variant}")
         sh("flutter pub get")
         sh("flutter pub run build_runner build --verbose --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\"")
-        UI.message("Generating Localization files")
-        sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
-        sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys")
+        if !params[:skip_localization]
+          UI.message("Generating Localization files")
+          sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
+          sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys")
+        end
       end
 
       #####################################################
@@ -30,7 +32,15 @@ module Fastlane
             description: "The build variant used for generating config file",
             is_string: true,
             default_value: "debug"
-          )
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :skip_localization,
+            env_name: "SKIP_LOCALIZATION",
+            description: "Whether to skip generating the localization files",
+            optional: true,
+            is_string: false,
+            default_value: false
+          ),
         ]
       end
 
