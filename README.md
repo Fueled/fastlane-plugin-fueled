@@ -29,6 +29,7 @@ Fueled specific.
 * iOS
     - [define_versions_ios](#user-content-define_versions_ios)
     - [import_base_64_certificates](#user-content-import_base64_certificates)
+    - [generate_secrets_ios](#generate_secrets_ios)
     - [install_profiles](#user-content-install_profiles)
     - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
     - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
@@ -256,6 +257,17 @@ Changelog is made of commits between now, and the previous tag using the same bu
 |-----------------|-----------------------------------------------------------------|---|
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug)                             | `Debug` |
 | `ticket_base_url` <br/> `TICKET_BASE_URL` | The base url for tickets (eg. https://linear.app/fueled/issue/) | `https://linear.app/fueled/issue/` |
+
+#### `generate_secrets_ios`
+
+Generate [ArkanaKeys](https://github.com/rogerluan/arkana) Package containing project secrets.
+
+The generated package contains secrets based on the provided template and environment file. 
+
+| Key & Env Var | Description                                                     | Default Value
+|-----------------|-----------------------------------------------------------------|---|
+| `template_file` <br/> `ARKANA_TEMPLATE_FILE` | Name/Path of Arkana template file                             | `.arkana.yml` |
+| `environment_file` <br/> `ARKANA_ENVIRONMENT_FILE` | Name/Path of Arkana environment file | `.env.arkana_ci` |
 
 #### `import_base64_certificates`
 
