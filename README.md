@@ -34,6 +34,7 @@ Fueled specific.
     - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
     - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
     - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
+    - [check_code_coverage_ios](#check_code_coverage_ios)
     - [upload_to_app_store](#user-content-upload_to_app_store)
 * Android
     - [define_versions_android](#user-content-define_versions_android)
@@ -369,6 +370,16 @@ contain the build number.
 | `short_version_string` | The short version string (eg: 0.2.6) | `SharedValues::SHORT_VERSION_STRING` |
 | `build_number` <br/> `BUILD_NUMBER` | The build number (eg: 625) | `SharedValues::FUELED_BUILD_NUMBER` |
 | `export_method` <br/> `EXPORT_METHOD` | The build export method (eg: app-store) | |
+
+### `check_code_coverage_ios`
+
+Check how much of your code is covered by unit tests.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `code_coverage_config_file_path` | The path of the code coverage config file, the structure of this file is created by Fueled |  |
+| `result_bundle_file_path` | The result bundle file path (xcresult) | |
+| `minimum_code_coverage_percentage` | The minimum code coverage percentage accepted (eg: 64.5) | 80 |
 
 #### `tag`
 
