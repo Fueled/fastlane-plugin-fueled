@@ -24,6 +24,7 @@ Fueled specific.
     - [generate_changelog](#user-content-generate_changelog)
     - [is_build_necessary](#user-content-is_build_necessary)
     - [move_linear_tickets](#user-content-move_linear_tickets)
+    - [use_git_credential_store](#user-content-use_git_credential_store)
     - [tag](#user-content-tag)
     - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
@@ -34,7 +35,7 @@ Fueled specific.
     - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
     - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
     - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
-    - [check_code_coverage_ios](#check_code_coverage_ios)
+    - [check_code_coverage_ios](#user-content-check_code_coverage_ios)
     - [upload_to_app_store](#user-content-upload_to_app_store)
 * Android
     - [define_versions_android](#user-content-define_versions_android)
@@ -380,6 +381,16 @@ Check how much of your code is covered by unit tests.
 | `code_coverage_config_file_path` | The path of the code coverage config file, the structure of this file is created by Fueled |  |
 | `result_bundle_file_path` | The result bundle file path (xcresult) | |
 | `minimum_code_coverage_percentage` | The minimum code coverage percentage accepted (eg: 64.5) | 80 |
+
+#### `use_git_credential_store`
+
+Store your git credential in the git credential store (~/.git-credentials)
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `git_token` <br/> `GIT_TOKEN` | The git token that will be stored | |
+| `git_user_name` <br/> `GIT_USER_NAME` | The git username that will be stored | |
+| `git_host` <br/> `GIT_HOST` | The host of your git repository | |
 
 #### `tag`
 
