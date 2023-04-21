@@ -5,8 +5,7 @@ module Fastlane
 
     class SetAppVersionsFlutterAction < Action
       def self.run(params)
-        version_string = "#{params[:build_number]}-#{params[:build_config]}"
-        full_version_string = "#{params[:short_version_string]}+#{version_string}"
+        full_version_string = "#{params[:short_version_string]}-#{params[:build_config]}+#{params[:build_number]}"
         file_name = "pubspec.yaml"
         text = File.read(file_name)
         new_contents = text.gsub(/version:\ \d+(\.\d+){0,2}\+[\da-zA-Z\-]+/, "version: #{full_version_string}")
