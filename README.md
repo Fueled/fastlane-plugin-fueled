@@ -44,7 +44,8 @@ Fueled specific.
     - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
     - [formatting_checks_flutter](#user-content-formatting_checks_flutter)
     - [generate_files_flutter](#user-content-generate_files_flutter)
-    - [ci_checks_flutter](#user-content-ci_checks_flutter)
+    - [unit_tests_flutter](#user-content-unit_tests_flutter)
+    - [integration_tests_flutter](#user-content-unit_tests_flutter)
 * React Native
     - [define_versions_react_native](#user-content-define_versions_react_native)
 
@@ -434,9 +435,13 @@ Performs code generation
 |-----------------|--------------------|---|
 | `build_variant` | The build variant used for generating files | `debug` |
 
-#### `ci_checks_flutter`
+#### `unit_tests_flutter`
 
-Run tests and check code coverage
+Run unit tests and check code coverage
+
+#### `integration_tests_flutter`
+
+Run integration tests
 
 ## Issues and Feedback
 
