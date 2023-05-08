@@ -16,7 +16,7 @@ module Fastlane
             name: release_name,
             tag_name: tag_name,
             description: Actions.lane_context[SharedValues::CHANGELOG_GITHUB],
-            upload_assets: [params[:upload_assets]]
+            upload_assets: params[:upload_assets]
           )
         else
           UI.message("Not creating a GH release as we're not on CI.")
@@ -73,7 +73,8 @@ module Fastlane
             env_name: "UPLOAD_ASSETS",
             description: "Assets to be included with the release",
             optional: false,
-            default_value: Helper::FueledHelper.default_output_file
+            type: Array,
+            default_value: Helper::FueledHelper.default_gh_release_output_files
           )
         ]
       end

@@ -131,8 +131,7 @@ module Fastlane
       end
 
       # Returns the default artefact file depending on the platform (ios vs android).
-      # This function is being used by the upload_to_app_center and the
-      # create_github_release actions.
+      # This function is being used by the upload_to_app_center
       def self.default_output_file
         platform = Actions.lane_context[Actions::SharedValues::PLATFORM_NAME].to_s
         if platform == "ios"
@@ -143,6 +142,19 @@ module Fastlane
           Actions.lane_context[Actions::SharedValues::GRADLE_AAB_OUTPUT_PATH]
         end
       end
+
+      # Returns the list of generated build artifacts.
+      # This function is being used by the create_github_release actions.
+      def self.default_gh_release_output_files
+        [
+          Actions.lane_context[Actions::SharedValues::IPA_OUTPUT_PATH],
+          Actions.lane_context[Actions::SharedValues::DSYM_OUTPUT_PATH],
+          Actions.lane_context[Actions::SharedValues::GRADLE_APK_OUTPUT_PATH],
+          Actions.lane_context[Actions::SharedValues::GRADLE_AAB_OUTPUT_PATH],
+          Actions.lane_context[Actions::SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
+        ].compact!
+      end
+
     end
   end
 end
