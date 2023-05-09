@@ -1,6 +1,7 @@
 # fueled plugin
 
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-fueled)
+![Version](https://img.shields.io/github/v/release/Fueled/fastlane-plugin-fueled)
 
 ## Getting Started
 
