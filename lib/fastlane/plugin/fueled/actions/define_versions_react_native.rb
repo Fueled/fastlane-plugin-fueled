@@ -57,20 +57,21 @@ module Fastlane
             default_value: "none",
             verify_block: verify_block
           ),
-         FastlaneCore::ConfigItem.new(
-           key: :disable_version_limit,
-           env_name: "DISABLE_VERSION_LIMIT",
-           description: "When true it skips the version limiting currently set for (1.x.x)+ versions",
-           optional: true,
-           is_string: false,
-           default_value: false
-         ),
-         FastlaneCore::ConfigItem.new(
-            key: :build_type,
-            env_name: "BUILD_CONFIGURATION",
-            description: "This is used to retrieve tag belonging to this build_type",
+          FastlaneCore::ConfigItem.new(
+            key: :disable_version_limit,
+            env_name: "DISABLE_VERSION_LIMIT",
+            description: "When true it skips the version limiting currently set for (1.x.x)+ versions",
             optional: true,
-         )
+            is_string: false,
+            default_value: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :build_type,
+            env_name: "BUILD_TYPE_FILTER",
+            description: "This is used to retrieve tag belonging to this build_type",
+            optional: false,
+            default_value: ""
+          )
         ]
       end
 

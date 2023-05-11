@@ -63,10 +63,11 @@ module Fastlane
             default_value: false
           ),
           FastlaneCore::ConfigItem.new(
-             key: :build_type,
-             env_name: "BUILD_CONFIGURATION",
-             description: "This is used to retrieve tag belonging to this build_type",
-             optional: true,
+            key: :build_type,
+            env_name: "BUILD_TYPE_FILTER",
+            description: "This is used to retrieve tag belonging to this build_type",
+            optional: false,
+            default_value: ""
           )
         ]
       end
