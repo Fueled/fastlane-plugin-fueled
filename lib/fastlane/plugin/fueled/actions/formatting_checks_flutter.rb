@@ -7,7 +7,7 @@ module Fastlane
       def self.run(params)
         UI.message("Checking formatting")
         sh("flutter pub get")
-        sh("flutter format -o none --set-exit-if-changed .")
+        sh("dart format -o none --set-exit-if-changed .")
       end
 
       #####################################################
