@@ -8,11 +8,11 @@ module Fastlane
         variant = params[:build_variant]
         UI.message("Running Codegen for #{variant}")
         sh("flutter pub get")
-        sh("flutter pub run build_runner build --verbose --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\"")
+        sh("dart run build_runner build --verbose --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\"")
         if !params[:skip_localization]
           UI.message("Generating Localization files")
-          sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
-          sh("flutter pub run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys")
+          sh("dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
+          sh("dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys")
         end
       end
 

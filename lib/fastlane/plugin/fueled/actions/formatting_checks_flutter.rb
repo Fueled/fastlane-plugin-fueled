@@ -7,7 +7,7 @@ module Fastlane
       def self.run(params)
         UI.message("Checking formatting")
         sh("flutter pub get")
-        sh("dart format -o none --set-exit-if-changed .")
+        sh("dart format $(find lib test integration_test -name \"*.dart\" -not \( -name \"*.*freezed.dart\" -o -name \"*.g.dart\" -o -name \"*.gen.dart\" -o -name \"*.mocks.dart\" \) ) -o none --set-exit-if-changed")
       end
 
       #####################################################
