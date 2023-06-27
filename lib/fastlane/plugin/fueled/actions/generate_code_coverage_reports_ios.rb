@@ -3,7 +3,7 @@ require_relative '../helper/fueled_helper'
 module Fastlane
     module Actions
 
-    class CheckCodeCoverageIosAction < Action
+    class GenerateCodeCoverageReportsIosAction < Action
 
         def self.run(params)
             code_coverage_config_file_path = params[:code_coverage_config_file_path]
@@ -14,13 +14,22 @@ module Fastlane
               UI.user_error!("Minimum code coverage percentage should be between 0 and 100.")
             end 
 
-            total_code_coverage_percentage = Helper::FueledHelper.calculate_code_coverage_percentage(code_coverage_config_file_path, result_bundle_file_path)
+            report_file_string = Helper::FueledHelper.calculate_code_coverage_percentage(
+              code_coverage_config_file_path,
+              result_bundle_file_path,
+              minimum_code_coverage_percentage,
+              true
+            )
             
-            if total_code_coverage_percentage < minimum_code_coverage_percentage
-              UI.build_failure!("Code coverage percentage is below the minimum! 🚫🚫🚫")
-            else
-              UI.success("Code coverage percentage is accepted ✅.")
+            current_datetime = DateTime.now.strftime('%Y%m%d%H%M%S')
+            file_name = "./test_coverage_report_#{current_datetime}.html"
+
+            File.open(File.expand_path(file_name), "w") do |file|
+              file.write(report_file_string)
             end
+
+            UI.success("Code coverage reports have been generated successfully ✅.")
+            file_name
         end
 
          #####################################################
@@ -28,7 +37,7 @@ module Fastlane
         #####################################################
   
         def self.description
-            "Check the code coverage percentage, if it's lower than the provided one the action will fail. result_bundle should be set to true in your scan action"
+            "Generate code coverage reports"
         end
 
         def self.available_options

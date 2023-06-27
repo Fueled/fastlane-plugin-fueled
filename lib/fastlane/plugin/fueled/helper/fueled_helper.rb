@@ -155,6 +155,190 @@ module Fastlane
         ].compact!
       end
 
+      # Calculate the code coverage percentage
+      # This function takes the code coverage configuration file and checks the result bundle file for the code coverage percentage using the xccov tool.
+      # Additionally, this function can also generate HTML reports for the code coverage.
+      def self.calculate_code_coverage_percentage(
+        code_coverage_config_file_path,
+        result_bundle_file_path,
+        minimum_code_coverage_percentage = nil,
+        generate_reports = false
+      )
+        if !File.exist? code_coverage_config_file_path
+          UI.user_error!("Cannot find Fueled code coverage config file at #{code_coverage_config_file_path}")
+        end
+
+        if !File.exist? result_bundle_file_path
+          UI.user_error!("Cannot find result bundle file at #{result_bundle_file_path}")
+        end
+
+        code_coverage_config_file = File.read(code_coverage_config_file_path)
+
+        if !code_coverage_config = JSON.parse(code_coverage_config_file) rescue nil
+            UI.user_error!('The provided Fueled code coverage config file isn\'t in a valid format')
+        end 
+
+        UI.message("Calculating Code Coverage Percentage... 🤓")
+        test_results_json_string = `xcrun xccov view --report --json \"#{result_bundle_file_path}\"`
+        test_results = JSON.parse(test_results_json_string)
+
+        included_targets = code_coverage_config["targets"]
+        UI.message("\n\nLooking inside these targets: #{included_targets.join(', ')} 🕵🏻‍♂️\n")
+
+        number_of_files = 0
+        code_coverage_percentage = 0
+
+        reports_data = []
+
+        test_results['targets'].each do |target|
+          target_name = target['name'].split(".")[0]
+          if included_targets.include?(target_name)
+            target['files'].each do |file|
+              if should_check_code_coverage(file, code_coverage_config)
+                percentage = file['lineCoverage'] * 100
+                UI.message("#{file['name']}: #{percentage}%")
+                number_of_files += 1
+                code_coverage_percentage += percentage
+                reports_data << { 'file_name': file['name'], 'coverage_percentage': percentage, 'target_name': target_name }
+              end
+            end
+          end
+        end
+
+        total_code_coverage_percentage = code_coverage_percentage / number_of_files
+        file_message = number_of_files > 1 ? "files" : "file"
+        UI.message("Checked code coverage on #{number_of_files} #{file_message} with total percentage of #{total_code_coverage_percentage}%")
+
+        if generate_reports
+          UI.error("You should pass minimum code coverage percentage in order to generate reports") unless minimum_code_coverage_percentage
+          return generate_code_reports(reports_data, minimum_code_coverage_percentage, total_code_coverage_percentage)
+        end
+
+        total_code_coverage_percentage
+      end
+
+      private
+
+      def self.should_check_code_coverage(file, code_coverage_config)
+        file_name = file['name'].downcase
+        include_condition = code_coverage_config['file_name_include'].reduce(false) { |result, name| result || file_name.include?(name.downcase) }
+        exclude_condition = code_coverage_config['file_name_exclude'].reduce(false) { |result, name| result || file_name.include?(name.downcase) }
+        include_condition && !exclude_condition && !file_name.end_with?(".generated.swift")
+      end
+
+      def self.generate_code_reports(data, minimum_code_coverage_percentage, total_code_coverage_percentage)
+        grouped_data = data.group_by { |hash| hash[:target_name] }
+        html = %Q(
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                * {
+                  font-family: sans-serif, Arial, Helvetica;
+                }
+
+                #code-coverage-table {
+                  border-collapse: collapse;
+                  width: 100%;
+                  margin-bottom: 5%;
+                }
+
+                #code-coverage-table td, #code-coverage-table th {
+                  border: 1px solid #ddd;
+                  padding: 8px;
+                }
+
+                #code-coverage-table tr:nth-child(even){background-color: #f2f2f2;}
+
+                #code-coverage-table tr:hover {background-color: #ddd;}
+
+                #code-coverage-table th {
+                  padding-top: 12px;
+                  padding-bottom: 12px;
+                  text-align: left;
+                  background-color: #04AA6D;
+                  color: white;
+                }
+
+                #test-title {
+                  margin-bottom: 5%;
+                }
+
+                tfoot td {
+                  background-color: #f2f2f2;
+                  font-weight: bold;
+                }
+
+                .content {
+                  width: 75%;
+                  margin: 0 auto;
+                }
+
+                .red {
+                  color: red;
+                }
+              </style>
+            </head>
+            <body class="content">
+            <h2 id="test-title">Total Test Coverage Percentage is <span class="coloredValue">#{total_code_coverage_percentage}%</span></h2>
+        )
+
+          grouped_data.each do |target_name, hashes|
+            html += %Q(
+              <h3>#{target_name}</h3>
+              <table id="code-coverage-table">
+                <thead>
+                  <tr>
+                    <th>File Name</th>
+                    <th>Coverage Percentage</th>
+                  </tr>
+                </thead>
+                <tbody>
+            )         
+
+            hashes.each do |hash|
+              html += %Q(
+                    <tr>
+                      <td>#{hash[:file_name]}</td>
+                      <td class="coloredValue">#{hash[:coverage_percentage]}%</td>
+                    </tr>
+              )
+            end
+
+            total_percentage = hashes.sum { |hash| hash[:coverage_percentage] } / hashes.length.to_f 
+
+            html += %Q(
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="1">Total Percentage</td>
+                      <td class="coloredValue">#{total_percentage}%</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              )
+          end
+
+          html += %Q(
+              </body>
+              <script>
+                var coloredValues = document.getElementsByClassName('coloredValue');
+
+                for (var i = 0; i < coloredValues.length; i++) {
+                  var coloredValue = coloredValues[i];
+                  var value = parseFloat(coloredValue.textContent);
+
+                  console.log(value);
+                  if (value < #{minimum_code_coverage_percentage}) {
+                    coloredValue.classList.add('red');
+                  }
+                }
+              </script>
+            </html>
+          )
+
+          html
+      end
     end
   end
 end

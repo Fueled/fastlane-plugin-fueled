@@ -37,6 +37,7 @@ Fueled specific.
     - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
     - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
     - [check_code_coverage_ios](#user-content-check_code_coverage_ios)
+    - [generate_code_coverage_reports_ios](#user-content-generate_code_coverage_reports_ios)
     - [upload_to_app_store](#user-content-upload_to_app_store)
 * Android
     - [define_versions_android](#user-content-define_versions_android)
@@ -383,6 +384,17 @@ Check how much of your code is covered by unit tests.
 | `code_coverage_config_file_path` | The path of the code coverage config file, the structure of this file is created by Fueled |  |
 | `result_bundle_file_path` | The result bundle file path (xcresult) | |
 | `minimum_code_coverage_percentage` | The minimum code coverage percentage accepted (eg: 64.5) | 80 |
+
+### `generate_code_coverage_reports_ios`
+
+Generate code coverage reports and return the path of the generated file.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `code_coverage_config_file_path` | The path of the code coverage config file, the structure of this file is created by Fueled |  |
+| `result_bundle_file_path` | The result bundle file path (xcresult) | |
+| `minimum_code_coverage_percentage` | The minimum code coverage percentage accepted (eg: 64.5) | 80 |
+
 
 #### `use_git_credential_store`
 
