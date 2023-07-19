@@ -39,9 +39,11 @@ Fueled specific.
     - [check_code_coverage_ios](#user-content-check_code_coverage_ios)
     - [generate_code_coverage_reports_ios](#user-content-generate_code_coverage_reports_ios)
     - [upload_to_app_store](#user-content-upload_to_app_store)
+    - [upload_to_test_fairy_ios](#user-content-upload_to_test_fairy_ios)
 * Android
     - [define_versions_android](#user-content-define_versions_android)
     - [set_app_versions_android](#user-content-set_app_versions_android)
+    - [upload_to_test_fairy_android](#user-content-upload_to_test_fairy_android)
 * Flutter
     - [define_versions_flutter](#user-content-define_versions_flutter)
     - [set_app_versions_flutter](#user-content-set_app_versions_flutter)
@@ -446,6 +448,18 @@ This action uses an application specific password. Note that it only runs on CI.
 | `username` <br/> `TESTFLIGHT_USERNAME` | The app name as set in AppCenter | |
 | `password` <br/> `TESTFLIGHT_APP_SPECIFIC_PASSWORD` | The AppleId app specific password | |
 | `target_platform` | The target platform (`macos` | `ios` | `appletvos`) | `ios` |
+
+#### `upload_to_test_fairy_ios`
+#### `upload_to_test_fairy_android`
+
+Upload the given file to TestFairy. This action uses an API Key. Note that it only runs on CI.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `api_key` | The upload API token to interact with<br/>TestFairy APIs | |
+| `ipa` (iOS) <br/> `apk` (Android) | The path to the your app file | |
+| `comment` <br/> | The changelog for this release | `Actions.lane_context[`<br/>&nbsp;&nbsp;&nbsp;&nbsp;`SharedValues::CHANGELOG_MARKDOWN_PUBLIC]` |
+| `dsym` (iOS) <br/> `mapping` (Android) | The path to your IPA dsym/APK mapping file | |
 
 #### `formatting_checks_flutter`
 
