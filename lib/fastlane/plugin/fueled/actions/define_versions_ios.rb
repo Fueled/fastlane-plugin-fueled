@@ -10,7 +10,7 @@ module Fastlane
     class DefineVersionsIosAction < Action
       def self.run(params)
         # Build Number
-        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number(filter: '')
+        Actions.lane_context[SharedValues::FUELED_BUILD_NUMBER] = Helper::FueledHelper.new_build_number(filter: params[:build_type])
         # Short Version
         current_short_version = Helper::FueledHelper.short_version_ios(
           project_path: params[:project_path],
