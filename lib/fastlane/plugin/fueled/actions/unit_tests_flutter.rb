@@ -1,3 +1,5 @@
+require 'concurrent'
+
 module Fastlane
     module Actions
       module SharedValues
@@ -11,7 +13,11 @@ module Fastlane
           sh("./scripts/code_coverage_helper.sh") #TODO: incorporate the code from `code_coverage_helper.sh` into this action once this issue has been resolved https://github.com/flutter/flutter/issues/27997
           UI.message("Running unit tests")
           sh("rm -rf coverage")
-          sh("flutter test --coverage")
+
+          cpu_cores = Concurrent.physical_processor_count
+          coverage_cmd ="flutter test --coverage --concurrency=#{cpu_cores}"
+          sh(coverage_cmd)
+
           sh("genhtml -o coverage coverage/lcov.info")
           sh("flutter test test/essentials.dart")
         end
