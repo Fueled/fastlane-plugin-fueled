@@ -204,8 +204,12 @@ module Fastlane
             end
           end
         end
-
-        total_code_coverage_percentage = code_coverage_percentage / number_of_files
+          
+          if number_of_files == 0
+            UI.important("No files/tests were found, please check if this is intentional")
+          end
+        
+        total_code_coverage_percentage = number_of_files > 0 ? code_coverage_percentage / number_of_files : 100
         file_message = number_of_files > 1 ? "files" : "file"
         UI.message("Checked code coverage on #{number_of_files} #{file_message} with total percentage of #{total_code_coverage_percentage}%")
 
