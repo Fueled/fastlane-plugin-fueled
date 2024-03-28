@@ -15,7 +15,7 @@ module Fastlane
           sh("rm -rf coverage")
 
           cpu_cores = Concurrent.physical_processor_count
-          coverage_cmd ="flutter test --coverage --concurrency=#{cpu_cores}"
+          coverage_cmd ="flutter test --coverage --reporter=github --concurrency=#{cpu_cores}"
           sh(coverage_cmd)
 
           sh("genhtml -o coverage coverage/lcov.info")
