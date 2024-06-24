@@ -12,7 +12,8 @@ module Fastlane
         Actions.lane_context[SharedValues::TAG_NAME] = tag_name
         if other_action.is_ci
           UI.message("Tagging #{tag_name}...")
-          sh("git tag -f \"#{tag_name}\" && git push origin \"refs/tags/#{tag_name}\" --force")
+          sh("git tag -f '#{tag_name}'")
+          other_action.push_git_tags(force: true, tag: "'#{tag_name}'")
           return tag_name
         else
           UI.message("Not tagging #{tag_name} as we're not on CI.")
