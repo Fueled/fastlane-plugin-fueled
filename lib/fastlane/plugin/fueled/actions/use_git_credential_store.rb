@@ -5,9 +5,8 @@ module Fastlane
         
             def self.run(params)
                 commands = <<~BASH
-                git config --global credential.helper store
-
-                git credential-store --file ~/.git-credentials store << EOF
+                git config --global credential.helper manager
+                
                 protocol=https
                 host=#{params[:git_host]}
                 username=#{params[:git_user_name]}
