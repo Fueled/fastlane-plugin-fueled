@@ -39,7 +39,7 @@ module Fastlane
 
               # Set Git Credential Manager as the default credential helper
               echo "Configuring Git to use Git Credential Manager..."
-              git config --global credential.helper manager
+              git config --global --replace-all credential.helper manager
 
               # Set Git credentials
               echo "Setting Git credentials..."
