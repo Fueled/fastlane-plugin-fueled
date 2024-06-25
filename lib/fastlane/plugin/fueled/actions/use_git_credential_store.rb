@@ -4,13 +4,51 @@ module Fastlane
         class UseGitCredentialStoreAction < Action
         
             def self.run(params)
-                commands = <<~BASH
-                git config --global credential.helper manager
-                
-                protocol=https
-                host=#{params[:git_host]}
-                username=#{params[:git_user_name]}
-                password=#{params[:git_token]}
+              
+              # generate_bash_script.rb
+              commands = <<-BASH
+              #!/bin/bash
+
+              USERNAME=#{params[:git_user_name]}
+              PASSWORD=#{params[:git_token]}
+
+              # Install Git Credential Manager if not already installed
+              if ! command -v git-credential-manager &> /dev/null
+              then
+                  echo "Git Credential Manager not found. Installing..."
+
+                  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+                      echo "Installing Git Credential Manager on Linux..."
+                      curl -LO https://github.com/microsoft/Git-Credential-Manager/releases/latest/download/gcmcore-linux_amd64.tar.gz
+                      tar -xvf gcmcore-linux_amd64.tar.gz
+                      sudo ./install.sh
+                  elif [[ "$OSTYPE" == "darwin"* ]]; then
+                      echo "Installing Git Credential Manager on macOS..."
+                      brew tap microsoft/git
+                      brew install --cask git-credential-manager
+                  elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+                      echo "Installing Git Credential Manager on Windows..."
+                      winget install Microsoft.GitCredentialManager
+                  else
+                      echo "Unsupported OS. Please install Git Credential Manager manually."
+                      exit 1
+                  fi
+              else
+                  echo "Git Credential Manager is already installed."
+              fi
+
+              # Set Git Credential Manager as the default credential helper
+              echo "Configuring Git to use Git Credential Manager..."
+              git config --global credential.helper manager
+
+              # Set Git credentials
+              echo "Setting Git credentials..."
+              echo "protocol=https
+              host=github.com
+              username=$USERNAME
+              password=$PASSWORD" | git credential approve
+
+              echo "Git Credential Manager is now set as the default credential helper and credentials are configured."
               BASH
               
               if system(commands)
