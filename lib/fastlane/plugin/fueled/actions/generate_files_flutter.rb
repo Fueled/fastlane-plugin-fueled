@@ -6,16 +6,40 @@ module Fastlane
     class GenerateFilesFlutterAction < Action
       def self.run(params)
         variant = params[:build_variant]
-        UI.message("Running Codegen for #{variant}")
-        sh("flutter pub get")
-        sh("dart run build_runner build --verbose --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\"")
-        if !params[:skip_localization]
-          UI.message("Generating Localization files")
-          sh("dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\"")
-          sh("dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys")
+        paths = params[:targets]
+        if paths.empty?
+          paths = "."
+        end
+        paths = (paths.to_s).split(',')
+        # Loop through each item using a for loop
+        paths.each do |path|
+          UI.message("Running Codegen for #{variant} on #{path}")
+          cmd = "cd #{path} && "
+          cmd += "flutter pub get && "
+          cmd += "dart run build_runner build --verbose --delete-conflicting-outputs --define \"dynamic_config_generator|config_builder=variant=#{variant}\""
+          if !params[:skip_localization] && check_localization_package(path)
+            cmd += " && echo \"Generating Localization files \""
+            cmd += " && dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\""
+            cmd += " && dart run easy_localization:generate -S \"assets/translations\" -O \"lib/gen\" -o \"locale_keys.g.dart\" -f keys"
+          end
+          sh(cmd)
         end
       end
 
+      def self.check_localization_package(folder_path)
+        localization_package = "easy_localization"
+        pubspec_file = File.join(folder_path, 'pubspec.yaml')
+        if File.exist?(pubspec_file)
+          content = File.read(pubspec_file)
+          if content.include?(localization_package)
+            return true
+          else
+            return false
+          end
+        else
+          false
+        end
+      end
       #####################################################
       # @!group Documentation
       #####################################################
@@ -41,6 +65,13 @@ module Fastlane
             is_string: false,
             default_value: false
           ),
+          FastlaneCore::ConfigItem.new(
+            key: :targets,
+            env_name: "BUILD_RUNNER_TARGETS",
+            description: "In case your app uses multiple packages/modules and you want to run codegen in all of them, supply comma separated paths to each of them",
+            is_string: true,
+            default_value: ""
+          )
         ]
       end
 
