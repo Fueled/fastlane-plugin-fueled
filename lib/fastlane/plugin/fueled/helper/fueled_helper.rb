@@ -13,20 +13,20 @@ module Fastlane
         input.nil? || input.empty?
       end
 
-      # Returns the last tag in the repo, one can filter tags by specifying the parameter
-      def self.fetch_last_tag(filter:)
+      # Returns the last tag in the repo, one can filter tags by specifying the parameter   
+      def self.fetch_last_tag
         tag = nil
-        git_cmd = "git tag -l --sort=-v:refname"
-        if filter == nil
-           filter =""
-        end
-        git_cmd = git_cmd + "| grep -iF '#{filter}' -m 1"
+        git_cmd = "git tag -l --sort=-v:refname | head -n 1"  # Get the most recent tag
+      
         begin
-          tag = Actions::sh(git_cmd)
+          tag = Actions::sh(git_cmd)  # Executes the command
         rescue FastlaneCore::Interface::FastlaneShellError
+          UI.error("Failed to fetch the latest git tag.")
         end
+      
         tag
       end
+      
       
       # Returns the new build number, by bumping the last git tag build number.
       def self.new_build_number(filter:)
