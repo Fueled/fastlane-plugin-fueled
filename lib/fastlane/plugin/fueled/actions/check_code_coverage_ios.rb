@@ -9,6 +9,7 @@ module Fastlane
             code_coverage_config_file_path = params[:code_coverage_config_file_path]
             result_bundle_file_path = params[:result_bundle_file_path]
             minimum_code_coverage_percentage = params[:minimum_code_coverage_percentage]
+            bypass_build_failure = params[:bypass_build_failure]
 
             if !minimum_code_coverage_percentage.between?(0, 100)
               UI.user_error!("Minimum code coverage percentage should be between 0 and 100.")
@@ -17,10 +18,12 @@ module Fastlane
             total_code_coverage_percentage = Helper::FueledHelper.calculate_code_coverage_percentage(code_coverage_config_file_path, result_bundle_file_path)
             
             if total_code_coverage_percentage < minimum_code_coverage_percentage
-              UI.build_failure!("Code coverage percentage is below the minimum! 🚫🚫🚫")
+              message = "Code coverage percentage is below the minimum! 🚫🚫🚫"
+              bypass_build_failure ? UI.important(message) : UI.build_failure!(message)
             else
               UI.success("Code coverage percentage is accepted ✅.")
             end
+            total_code_coverage_percentage
         end
 
          #####################################################
@@ -54,6 +57,14 @@ module Fastlane
                 is_string: false,
                 optional: true,
                 default_value: 80
+              ),
+              FastlaneCore::ConfigItem.new(
+                key: :bypass_build_failure,
+                env_name: "BYPASS_BUILD_FAILURE",
+                description: "Bypass the build failure and return the code coverage percentage",
+                is_string: false,
+                optional: true,
+                default_value: false
               )
             ]
           end

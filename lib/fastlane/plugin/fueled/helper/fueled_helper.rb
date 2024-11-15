@@ -209,7 +209,8 @@ module Fastlane
             UI.important("No files/tests were found, please check if this is intentional")
           end
         
-        total_code_coverage_percentage = number_of_files > 0 ? code_coverage_percentage / number_of_files : 100
+        total_code_coverage_percentage = number_of_files > 0 ? code_coverage_percentage / number_of_files : 100.00
+        total_code_coverage_percentage = total_code_coverage_percentage.round(2)
         file_message = number_of_files > 1 ? "files" : "file"
         UI.message("Checked code coverage on #{number_of_files} #{file_message} with total percentage of #{total_code_coverage_percentage}%")
 
@@ -217,7 +218,6 @@ module Fastlane
           UI.error("You should pass minimum code coverage percentage in order to generate reports") unless minimum_code_coverage_percentage
           return generate_code_reports(reports_data, minimum_code_coverage_percentage, total_code_coverage_percentage)
         end
-
         total_code_coverage_percentage
       end
 
