@@ -4,11 +4,7 @@ module Fastlane
   module Actions
     class SetAppVersionsPlistIosAction < Action
       def self.run(params)
-        if params[:export_method] == "app-store"
-          version_string = "#{params[:build_number]}"
-        else
-          version_string = "#{params[:build_number]}-#{params[:build_config]}"
-        end
+        version_string = "#{params[:build_number]}"
         other_action.increment_version_number_in_plist(
           version_number: params[:short_version_string],
           xcodeproj: params[:project_path],
