@@ -12,6 +12,7 @@ module Fastlane
                 host=#{params[:git_host]}
                 username=#{params[:git_user_name]}
                 password=#{params[:git_token]}
+                EOF
               BASH
               
               if system(commands)
