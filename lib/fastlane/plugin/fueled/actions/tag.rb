@@ -10,9 +10,12 @@ module Fastlane
       def self.run(params)
         tag_name = "v#{params[:short_version_string]}##{params[:build_number]}-#{params[:build_config]}"
         Actions.lane_context[SharedValues::TAG_NAME] = tag_name
+        repo_root = sh("git rev-parse --show-toplevel").strip
         if other_action.is_ci
           UI.message("Tagging #{tag_name}...")
-          sh("git tag -f \"#{tag_name}\" && git push origin \"refs/tags/#{tag_name}\" --force")
+          Dir.chdir(repo_root) do
+            sh("git tag -f \"#{tag_name}\" && git push origin \"refs/tags/#{tag_name}\" --force")
+          end
           return tag_name
         else
           UI.message("Not tagging #{tag_name} as we're not on CI.")
