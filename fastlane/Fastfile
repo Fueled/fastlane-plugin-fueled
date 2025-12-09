@@ -30,7 +30,7 @@ platform :ios do
   lane :tests do
     run_tests(
       workspace: ENV['WORKSPACE'],
-      devices: ["iPhone 13"],
+      devices: ["iPhone 17"],
       scheme: ENV['SCHEME']
     )
   end
@@ -47,11 +47,14 @@ platform :ios do
       keychain_name: keychain_name,
       keychain_password: keychain_password
     )
-    import_base64_certificates(
+    ensure_certificates(
       keychain_name: keychain_name,
       keychain_password: keychain_password
     )
-    install_profiles
+    ensure_provisioning_profiles(
+      bundle_id: ENV['BUNDLE_ID'],
+      profile_type: ENV['PROVISIONING_PROFILE_TYPE'] || 'IOS_APP_STORE'
+    )
     generate_changelog
   end
 

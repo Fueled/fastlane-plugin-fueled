@@ -343,6 +343,20 @@ module Fastlane
 
           html
       end
+
+      # Update Xcode project signing settings after build tools (Flutter, CocoaPods, etc.) modify it
+      # This should be called after flutter build ios or pod install
+      def self.update_xcode_signing_after_build
+        require_relative '../library/xcode/project_updater'
+        
+        begin
+          Helper::Xcode::ProjectUpdater.update_provisioning_profile_from_lane_context
+          true
+        rescue StandardError => e
+          UI.important("⚠ Could not update Xcode project after build: #{e.message}")
+          false
+        end
+      end
     end
   end
 end

@@ -30,9 +30,9 @@ Fueled specific.
     - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
     - [define_versions_ios](#user-content-define_versions_ios)
-    - [import_base_64_certificates](#user-content-import_base64_certificates)
+    - [ensure_certificates](#user-content-ensure_certificates)
+    - [ensure_provisioning_profiles](#user-content-ensure_provisioning_profiles)
     - [generate_secrets_ios](#generate_secrets_ios)
-    - [install_profiles](#user-content-install_profiles)
     - [install_wwdr_certificate](#user-content-install_wwdr_certificate)
     - [set_app_versions_plist_ios](#user-content-set_app_versions_plist_ios)
     - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
@@ -75,8 +75,11 @@ SCHEME=SchemeToBuild
 EXPORT_METHOD=enterprise
 VERSION_BUMP_TYPE=minor
 # Signing
-P12_PASSWORD=$P12_PASSWORD
-BASE64_CERTIFICATE_INPUT=A_BASE64_ENCODED_P12_FILE
+APP_STORE_CONNECT_KEY_ID=$APP_STORE_CONNECT_KEY_ID
+APP_STORE_CONNECT_ISSUER_ID=$APP_STORE_CONNECT_ISSUER_ID
+APP_STORE_CONNECT_KEY_FILE=$APP_STORE_CONNECT_KEY_FILE
+BUNDLE_ID=com.example.app
+PROVISIONING_PROFILE_TYPE=IOS_APP_STORE
 # Appcenter
 AC_API_TOKEN=$APPCENTER_API_TOKEN
 AC_OWNER_NAME=OwnerName
@@ -123,7 +126,7 @@ platform :ios do
   lane :tests do
     run_tests(
       workspace: ENV['WORKSPACE'],
-      devices: ["iPhone 13",],
+      devices: ["iPhone 17"],
       scheme: ENV['SCHEME']
     )
   end
@@ -140,11 +143,14 @@ platform :ios do
       keychain_name: keychain_name,
       keychain_password: keychain_password
     )
-    import_base64_certificates(
+    ensure_certificates(
       keychain_name: keychain_name,
       keychain_password: keychain_password
     )
-    install_profiles
+    ensure_provisioning_profiles(
+      bundle_id: ENV['BUNDLE_ID'],
+      profile_type: ENV['PROVISIONING_PROFILE_TYPE'] || 'IOS_APP_STORE'
+    )
     generate_changelog
   end
 
@@ -276,24 +282,34 @@ The generated package contains secrets based on the provided template and enviro
 | `template_file` <br/> `ARKANA_TEMPLATE_FILE` | Name/Path of Arkana template file                             | `.arkana.yml` |
 | `environment_file` <br/> `ARKANA_ENVIRONMENT_FILE` | Name/Path of Arkana environment file | `.env.arkana_ci` |
 
-#### `import_base64_certificates`
+#### `ensure_certificates`
 
-Import p12 certificates encoded as base64
-
-| Key & Env Var | Description | Default Value
-|-----------------|--------------------|---|
-| `base64_input` <br> `BASE64_CERTIFICATE_INPUT` | The base64 string describing the p12 file | |
-| `p12_password` <br/> `P12_PASSWORD` | The decrypted p12 password | |
-| `keychain_name` <br/> `KEYCHAIN_NAME` | The keychain name to install the certificates to | `login` |
-| `keychain_password` <br/> `KEYCHAIN_PASSWORD` | The keychain password to install the certificates to | |
-
-#### `install_profiles`
-
-Install provisioning profiles from the given folder
+Ensure iOS distribution certificates exist locally and on App Store Connect. This action checks if a distribution certificate exists on App Store Connect and in the local keychain. If not found, it creates a new certificate and installs it to the keychain.
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
-| `folder` <br/> `PROFILES_FOLDER` | The folder where the provisioning profiles are stored | `fastlane/profiles` |
+| `key_id` <br/> `APP_STORE_CONNECT_KEY_ID` | App Store Connect Key ID (10-character string) | |
+| `issuer_id` <br/> `APP_STORE_CONNECT_ISSUER_ID` | App Store Connect Issuer ID (UUID) | |
+| `key_content` <br/> `APP_STORE_CONNECT_KEY_CONTENT` | App Store Connect private key content (p8 file content as string) | |
+| `key_file_path` <br/> `APP_STORE_CONNECT_KEY_FILE` | Path to App Store Connect private key file (.p8) | |
+| `keychain_name` <br/> `KEYCHAIN_NAME` | Keychain name to install certificates to | `login` |
+| `keychain_password` <br/> `KEYCHAIN_PASSWORD` | Keychain password | |
+
+#### `ensure_provisioning_profiles`
+
+Ensure iOS provisioning profiles exist on App Store Connect and are installed locally. This action checks if a provisioning profile exists on App Store Connect for the given bundle ID and profile type. If not found, it creates a new profile and installs it to ~/Library/MobileDevice/Provisioning Profiles/. Supports multiple App Store Connect apps with the same bundle ID.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `bundle_id` <br/> `BUNDLE_ID` | Bundle identifier (e.g., com.example.app) | |
+| `profile_type` <br/> `PROVISIONING_PROFILE_TYPE` | Profile type (IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_DEVELOPMENT) | |
+| `profile_name` <br/> `PROVISIONING_PROFILE_NAME` | Name for the provisioning profile (auto-generated if not provided) | |
+| `certificate_id` <br/> `CERTIFICATE_ID` | Certificate ID to use (uses distribution certificate if not provided) | |
+| `app_store_connect_app_id` <br/> `APP_STORE_CONNECT_APP_ID` | App Store Connect app ID (for multiple apps with same bundle ID) | |
+| `key_id` <br/> `APP_STORE_CONNECT_KEY_ID` | App Store Connect Key ID (10-character string) | |
+| `issuer_id` <br/> `APP_STORE_CONNECT_ISSUER_ID` | App Store Connect Issuer ID (UUID) | |
+| `key_content` <br/> `APP_STORE_CONNECT_KEY_CONTENT` | App Store Connect private key content (p8 file content as string) | |
+| `key_file_path` <br/> `APP_STORE_CONNECT_KEY_FILE` | Path to App Store Connect private key file (.p8) | |
 
 #### `install_wwdr_certificate`
 
