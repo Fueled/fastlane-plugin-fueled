@@ -38,7 +38,6 @@ Fueled specific.
     - [set_app_versions_xcodeproj_ios](#user-content-set_app_versions_xcodeproj_ios)
     - [check_code_coverage_ios](#user-content-check_code_coverage_ios)
     - [generate_code_coverage_reports_ios](#user-content-generate_code_coverage_reports_ios)
-    - [upload_to_app_store](#user-content-upload_to_app_store)
     - [upload_to_test_fairy_ios](#user-content-upload_to_test_fairy_ios)
 * Android
     - [define_versions_android](#user-content-define_versions_android)
@@ -436,18 +435,6 @@ audiences. Note that it only runs on CI.
 | `groups` <br/> `AC_DISTRIBUTION_GROUPS` | A comma separated list of distribution groups | |
 | `notify_testers` <br/> `AC_NOTIFY_TESTERS` | Should the testers be notified | |
 | `changelog` | The changelog for this release | |
-
-#### `upload_to_app_store`
-
-Upload the given file to the AppStore (TestFlight)
-This action uses an application specific password. Note that it only runs on CI.
-
-| Key & Env Var | Description | Default Value
-|-----------------|--------------------|---|
-| `file_path` | The path to the your app file | `Helper::FueledHelper.default_output_file` |
-| `username` <br/> `TESTFLIGHT_USERNAME` | The app name as set in AppCenter | |
-| `password` <br/> `TESTFLIGHT_APP_SPECIFIC_PASSWORD` | The AppleId app specific password | |
-| `target_platform` | The target platform (`macos` | `ios` | `appletvos`) | `ios` |
 
 #### `upload_to_test_fairy_ios`
 #### `upload_to_test_fairy_android`
