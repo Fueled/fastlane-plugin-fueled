@@ -21,6 +21,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency('fastlane-plugin-appcenter', '~> 2.0.0')
   spec.add_dependency('fastlane-plugin-versioning', '~> 0.5.0')
   spec.add_dependency('concurrent-ruby')
+  spec.add_dependency('jwt', '~> 2.7')
+  spec.add_dependency('rbnacl', '~> 7.1')
   spec.add_development_dependency('bundler')
   spec.add_development_dependency('fastlane', '>= 2.197.0')
   spec.add_development_dependency('pry')
