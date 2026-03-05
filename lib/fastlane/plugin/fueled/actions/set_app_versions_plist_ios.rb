@@ -9,15 +9,19 @@ module Fastlane
         else
           version_string = "#{params[:build_number]}-#{params[:build_config]}"
         end
+
+        target_name = params[:target]
+
         other_action.increment_version_number_in_plist(
           version_number: params[:short_version_string],
           xcodeproj: params[:project_path],
-          target: params[:scheme]
+          target: target_name
         )
+
         other_action.increment_build_number_in_plist(
           build_number: version_string,
           xcodeproj: params[:project_path],
-          target: params[:scheme]
+          target: target_name
         )
       end
 
@@ -45,9 +49,17 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :scheme,
             env_name: "SCHEME",
-            description: "The scheme to set the version to",
+            description: "The scheme used for the build",
             is_string: true,
             optional: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :target,
+            env_name: "TARGET",
+            description: "The target to update (defaults to SCHEME if not provided)",
+            is_string: true,
+            optional: true,
+            default_value: ENV["TARGET"] || ENV["SCHEME"]
           ),
           FastlaneCore::ConfigItem.new(
             key: :build_config,
