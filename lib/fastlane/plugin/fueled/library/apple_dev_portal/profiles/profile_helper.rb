@@ -65,6 +65,52 @@ module Fastlane
             end
             normalized
           end
+
+          # Extract entitlements from an installed provisioning profile on disk
+          def extract_entitlements_from_profile(profile_uuid)
+            return {} unless profile_uuid
+
+            profile_path = File.expand_path("~/Library/MobileDevice/Provisioning Profiles/#{profile_uuid}.mobileprovision")
+            return {} unless File.exist?(profile_path)
+
+            begin
+              plist_xml = `security cms -D -i "#{profile_path}" 2>/dev/null`
+              return {} unless $?.success? && !plist_xml.strip.empty?
+
+              plist = Plist.parse_xml(plist_xml)
+              return {} unless plist
+
+              plist['Entitlements'] || {}
+            rescue StandardError => e
+              UI.important("Could not extract entitlements from profile #{profile_uuid}: #{e.message}")
+              {}
+            end
+          end
+
+          # Compare project entitlements against profile entitlements.
+          # Returns a mismatch description if the project requires capabilities
+          # the profile doesn't provide; nil otherwise.
+          # Extra capabilities in the profile are harmless and ignored.
+          def check_entitlements_mismatch(project_path:, profile_uuid:)
+            project_ents = normalize_entitlements(extract_entitlements_from_project(project_path))
+            profile_ents = normalize_entitlements(extract_entitlements_from_profile(profile_uuid))
+
+            return nil if project_ents.empty? || profile_ents.empty?
+
+            missing = []
+            project_ents.each_key do |key|
+              next if profile_ents.key?(key)
+              # For aps-environment, presence is what matters — value differs
+              # between debug (development) and release (production) builds
+              next if key == 'aps-environment' && profile_ents.key?('aps-environment')
+
+              missing << key
+            end
+
+            return nil if missing.empty?
+
+            "project requires entitlements missing from profile: #{missing.join(', ')}"
+          end
         end
       end
     end

@@ -149,10 +149,11 @@ module Fastlane
                 bundle_id: bundle_id,
                 profile_type: profile_type,
                 bundle_id_id: bundle_id_id,
-                  key_id: key_id,
-                  issuer_id: issuer_id,
-                  key_content: key_content,
-                key_file_path: key_file_path
+                key_id: key_id,
+                issuer_id: issuer_id,
+                key_content: key_content,
+                key_file_path: key_file_path,
+                project_path: project_path
               )
 
               best_profile = selection_result[:best_profile]
@@ -276,7 +277,8 @@ module Fastlane
                     key_id: key_id,
                     issuer_id: issuer_id,
                     key_content: key_content,
-                    key_file_path: key_file_path
+                    key_file_path: key_file_path,
+                    project_path: project_path
                   )
 
                   best_profile = selection_result[:best_profile]

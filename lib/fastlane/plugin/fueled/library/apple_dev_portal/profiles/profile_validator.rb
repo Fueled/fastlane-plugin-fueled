@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../app_store_connect/api'
+require_relative 'profile_helper'
 require 'fastlane_core/ui/ui'
 
 module Fastlane
@@ -20,7 +21,7 @@ module Fastlane
           # - bundle_id_id: String, bundle ID ID
           #
           # Returns: Hash with :needs_update (Boolean) and :reason (String)
-          def validate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, profile_id:, profile_expiration_date:, profile_certificate_ids:, bundle_id_id:)
+          def validate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, profile_id:, profile_expiration_date:, profile_certificate_ids:, bundle_id_id:, project_path: nil, profile_uuid: nil)
             reasons = []
 
             if profile_expiration_date
@@ -47,6 +48,14 @@ module Fastlane
                   reasons << "certificate #{cert_id} is invalid or expired"
                 end
               end
+            end
+
+            if project_path && profile_uuid
+              mismatch = ProfileHelper.check_entitlements_mismatch(
+                project_path: project_path,
+                profile_uuid: profile_uuid
+              )
+              reasons << "capability mismatch: #{mismatch}" if mismatch
             end
 
             {
