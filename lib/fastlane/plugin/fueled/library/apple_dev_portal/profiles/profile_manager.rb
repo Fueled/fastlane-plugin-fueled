@@ -225,15 +225,28 @@ module Fastlane
             end
 
             UI.message("No existing profile found. Creating new profile: #{resolved_profile_name}")
-            
+
             unless bundle_id_id
               UI.user_error!("Bundle ID ID is required to create a provisioning profile")
             end
-            
+
             unless resolved_certificate_id
               UI.user_error!("Certificate ID is required to create a provisioning profile")
             end
-            
+
+            # Sync project capabilities to the App ID before creating the profile,
+            # so the new profile will include all required entitlements.
+            if project_path
+              ProfileHelper.sync_capabilities_to_portal(
+                project_path: project_path,
+                bundle_id_id: bundle_id_id,
+                key_id: key_id,
+                issuer_id: issuer_id,
+                key_content: key_content,
+                key_file_path: key_file_path
+              )
+            end
+
             UI.message("Creating profile with bundle ID: #{bundle_id_id}, certificate: #{resolved_certificate_id}")
 
             begin

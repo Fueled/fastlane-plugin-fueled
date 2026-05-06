@@ -53,7 +53,12 @@ module Fastlane
             if project_path && profile_uuid
               mismatch = ProfileHelper.check_entitlements_mismatch(
                 project_path: project_path,
-                profile_uuid: profile_uuid
+                profile_uuid: profile_uuid,
+                key_id: key_id,
+                issuer_id: issuer_id,
+                key_content: key_content,
+                key_file_path: key_file_path,
+                profile_id: profile_id
               )
               reasons << "capability mismatch: #{mismatch}" if mismatch
             end
