@@ -565,6 +565,56 @@ module Fastlane
         end
 
         # ---------------------------------------------
+        # Bundle ID Capabilities
+        # ---------------------------------------------
+
+        # Fetch capabilities enabled on a bundle ID
+        def fetch_bundle_id_capabilities(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, bundle_id_id:)
+          response = request(
+            key_id: key_id,
+            issuer_id: issuer_id,
+            key_content: key_content,
+            key_file_path: key_file_path,
+            path: "/bundleIds/#{bundle_id_id}/bundleIdCapabilities"
+          )
+
+          response['data'] || []
+        end
+
+        # Enable a capability on a bundle ID
+        def enable_bundle_id_capability(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, bundle_id_id:, capability_type:)
+          body = {
+            data: {
+              type: 'bundleIdCapabilities',
+              attributes: {
+                capabilityType: capability_type,
+                settings: []
+              },
+              relationships: {
+                bundleId: {
+                  data: {
+                    type: 'bundleIds',
+                    id: bundle_id_id
+                  }
+                }
+              }
+            }
+          }
+
+          response = request(
+            key_id: key_id,
+            issuer_id: issuer_id,
+            key_content: key_content,
+            key_file_path: key_file_path,
+            method: :post,
+            path: '/bundleIdCapabilities',
+            body: body
+          )
+
+          response['data']
+        end
+
+        # ---------------------------------------------
         # Users
         # ---------------------------------------------
         # Fetch the team ID for a specific bundle ID
