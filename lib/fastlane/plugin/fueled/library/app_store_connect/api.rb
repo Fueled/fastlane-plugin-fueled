@@ -581,6 +581,26 @@ module Fastlane
           response['data'] || []
         end
 
+        # Default capability settings required by App Store Connect when enabling
+        # certain capability types. Most capabilities accept an empty settings array,
+        # but a few — like Sign in with Apple — require an explicit configuration or
+        # the API rejects the enable call with:
+        #
+        #   "Please select at least one configuration for Sign In with Apple."
+        #
+        # For Sign in with Apple we default to enabling the App ID as the primary
+        # consent target (equivalent to ticking "Enable as a primary App ID" in
+        # the developer portal). Apps that need to be grouped with an existing
+        # primary App ID should configure this manually.
+        CAPABILITY_DEFAULT_SETTINGS = {
+          'APPLE_ID_AUTH' => [
+            {
+              key: 'APPLE_ID_AUTH_APP_CONSENT',
+              options: [{ key: 'PRIMARY_APP_CONSENT' }]
+            }
+          ]
+        }.freeze
+
         # Enable a capability on a bundle ID
         def enable_bundle_id_capability(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, bundle_id_id:, capability_type:)
           body = {
@@ -588,7 +608,7 @@ module Fastlane
               type: 'bundleIdCapabilities',
               attributes: {
                 capabilityType: capability_type,
-                settings: []
+                settings: CAPABILITY_DEFAULT_SETTINGS[capability_type] || []
               },
               relationships: {
                 bundleId: {
