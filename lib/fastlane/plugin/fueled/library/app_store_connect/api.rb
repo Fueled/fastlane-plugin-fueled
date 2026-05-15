@@ -394,7 +394,7 @@ module Fastlane
                 
                 if matches
                   filtered << profile
-                elsif UI.verbose?
+                elsif FastlaneCore::Globals.verbose?
                   UI.verbose("Profile '#{profile_name}' (ID: #{profile_id}) has bundle ID: #{bundle_id_in_profile.inspect}, looking for: #{bundle_id_id}")
                 end
               end
