@@ -40,3 +40,24 @@ describe Fastlane::Actions::EnsureCertificatesAction do
     end
   end
 end
+
+describe 'distribution_certificate_type option across ensure actions' do
+  [Fastlane::Actions::EnsureCertificatesAction,
+   Fastlane::Actions::EnsureProvisioningProfilesAction].each do |action|
+    context action.name do
+      let(:option) do
+        action.available_options.find { |o| o.key == :distribution_certificate_type }
+      end
+
+      it 'exists and defaults to IOS_DISTRIBUTION' do
+        expect(option).not_to be_nil
+        expect(option.default_value).to eq('IOS_DISTRIBUTION')
+      end
+
+      # fastlane rejects ConfigItem descriptions that end in '.'
+      it 'has a description that does not end with a period' do
+        expect(option.description).not_to end_with('.')
+      end
+    end
+  end
+end

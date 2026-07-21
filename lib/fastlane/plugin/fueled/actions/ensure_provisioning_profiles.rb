@@ -106,7 +106,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :distribution_certificate_type,
             env_name: "DISTRIBUTION_CERTIFICATE_TYPE",
-            description: "Distribution certificate type when auto-selecting a cert: 'IOS_DISTRIBUTION' (legacy) or 'DISTRIBUTION' (Apple Distribution). Ignored when certificate_id is provided.",
+            description: "Distribution certificate type when auto-selecting a cert: 'IOS_DISTRIBUTION' (legacy) or 'DISTRIBUTION' (Apple Distribution); ignored when certificate_id is provided",
             is_string: true,
             optional: true,
             default_value: "IOS_DISTRIBUTION",
