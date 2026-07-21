@@ -22,7 +22,8 @@ module Fastlane
           keychain_password: params[:keychain_password],
           project_root: params[:project_root],
           encryption_key: params[:encryption_key],
-          certificate_name: params[:certificate_name]
+          certificate_name: params[:certificate_name],
+          distribution_certificate_type: params[:distribution_certificate_type]
         )
 
         if certificate_info
@@ -158,6 +159,20 @@ module Fastlane
             is_string: true,
             optional: true,
             default_value: "distribution"
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :distribution_certificate_type,
+            env_name: "DISTRIBUTION_CERTIFICATE_TYPE",
+            description: "Distribution certificate type to fetch/create: 'IOS_DISTRIBUTION' (legacy) or 'DISTRIBUTION' (Apple Distribution)",
+            is_string: true,
+            optional: true,
+            default_value: "IOS_DISTRIBUTION",
+            verify_block: proc do |value|
+              valid_types = %w[IOS_DISTRIBUTION DISTRIBUTION]
+              unless valid_types.include?(value)
+                UI.user_error!("Invalid distribution_certificate_type: #{value}. Must be one of: #{valid_types.join(', ')}")
+              end
+            end
           ),
           FastlaneCore::ConfigItem.new(
             key: :bundle_id,

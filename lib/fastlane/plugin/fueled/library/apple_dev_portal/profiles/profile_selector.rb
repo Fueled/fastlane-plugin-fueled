@@ -24,7 +24,7 @@ module Fastlane
           # - key_id, issuer_id, key_content, key_file_path: App Store Connect credentials
           #
           # Returns: Hash with :best_profile, :profiles_to_delete, :best_profile_valid
-          def select_best(existing_profiles:, bundle_id:, profile_type:, bundle_id_id:, key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, project_path: nil)
+          def select_best(existing_profiles:, bundle_id:, profile_type:, bundle_id_id:, key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, project_path: nil, required_certificate_id: nil)
             return { best_profile: nil, profiles_to_delete: [], best_profile_valid: false } if existing_profiles.empty?
 
             if existing_profiles.length > 1
@@ -59,7 +59,8 @@ module Fastlane
                 profile_certificate_ids: profile_certificate_ids,
                 bundle_id_id: bundle_id_id,
                 project_path: project_path,
-                profile_uuid: profile_uuid
+                profile_uuid: profile_uuid,
+                required_certificate_id: required_certificate_id
               )
 
               if validation_result[:needs_update]

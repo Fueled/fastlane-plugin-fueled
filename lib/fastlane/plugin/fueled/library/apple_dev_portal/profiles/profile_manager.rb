@@ -58,7 +58,7 @@ module Fastlane
           # - search_path: String, optional directory to search for Xcode projects (default: current directory)
           #
           # Returns: Hash with profile info
-          def ensure_profile(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, bundle_id:, profile_type:, profile_name: nil, certificate_id: nil, app_store_connect_app_id: nil, project_path: nil, search_path: Dir.pwd)
+          def ensure_profile(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, bundle_id:, profile_type:, profile_name: nil, certificate_id: nil, app_store_connect_app_id: nil, project_path: nil, search_path: Dir.pwd, distribution_certificate_type: 'IOS_DISTRIBUTION')
             UI.message("Ensuring provisioning profile for bundle ID: #{bundle_id}")
 
             detected_project = nil
@@ -99,7 +99,7 @@ module Fastlane
                 issuer_id: issuer_id,
                 key_content: key_content,
                 key_file_path: key_file_path,
-                types: ['IOS_DISTRIBUTION']
+                types: [distribution_certificate_type]
               )
 
               if certs.empty?
@@ -116,7 +116,9 @@ module Fastlane
               cert_name = best_cert.dig('attributes', 'name')
               UI.message("Using certificate: #{cert_name}")
               
-              code_sign_identity = if cert_name.include?('Distribution')
+              code_sign_identity = if cert_name.include?('Apple Distribution')
+                                     'Apple Distribution'
+                                   elsif cert_name.include?('Distribution')
                                      'iPhone Distribution'
                                    elsif cert_name.include?('Development')
                                      'iPhone Developer'
@@ -153,7 +155,8 @@ module Fastlane
                 issuer_id: issuer_id,
                 key_content: key_content,
                 key_file_path: key_file_path,
-                project_path: project_path
+                project_path: project_path,
+                required_certificate_id: resolved_certificate_id
               )
 
               best_profile = selection_result[:best_profile]

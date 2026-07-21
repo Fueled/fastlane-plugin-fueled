@@ -30,7 +30,7 @@ module Fastlane
           # - encryption_key: String, encryption key for certificate storage (from CERTIFICATE_ENCRYPTION_KEY env var)
           #
           # Returns: Hash with certificate info or nil if creation failed
-          def ensure_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: nil, keychain_password: nil, project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution')
+          def ensure_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: nil, keychain_password: nil, project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution', distribution_certificate_type: 'IOS_DISTRIBUTION')
             unless keychain_name
               KeychainManager.ensure_accessible
               keychain_name = KeychainManager.keychain_name
@@ -174,7 +174,7 @@ module Fastlane
                       issuer_id: issuer_id,
                       key_content: key_content,
                       key_file_path: key_file_path,
-                      types: ['IOS_DISTRIBUTION']
+                      types: [distribution_certificate_type]
                     )
                     
                     if remote_certs && !remote_certs.empty?
@@ -264,9 +264,9 @@ module Fastlane
               issuer_id: issuer_id,
               key_content: key_content,
               key_file_path: key_file_path,
-              types: ['IOS_DISTRIBUTION']
+              types: [distribution_certificate_type]
             )
-            
+
             if remote_certs && !remote_certs.empty?
               UI.important("")
               UI.important("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -298,7 +298,8 @@ module Fastlane
                 keychain_password: keychain_password,
                 project_root: project_root,
                 encryption_key: encryption_key,
-                certificate_name: certificate_name
+                certificate_name: certificate_name,
+                distribution_certificate_type: distribution_certificate_type
               )
             end
           end

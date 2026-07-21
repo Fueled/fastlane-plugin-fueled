@@ -21,8 +21,15 @@ module Fastlane
           # - bundle_id_id: String, bundle ID ID
           #
           # Returns: Hash with :needs_update (Boolean) and :reason (String)
-          def validate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, profile_id:, profile_expiration_date:, profile_certificate_ids:, bundle_id_id:, project_path: nil, profile_uuid: nil)
+          def validate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, profile_id:, profile_expiration_date:, profile_certificate_ids:, bundle_id_id:, project_path: nil, profile_uuid: nil, required_certificate_id: nil)
             reasons = []
+
+            # When a specific certificate is required (e.g. a pinned distribution cert),
+            # a profile that does not include it must be regenerated - otherwise signing
+            # fails with "profile doesn't include signing certificate ...".
+            if required_certificate_id && !(profile_certificate_ids || []).include?(required_certificate_id)
+              reasons << "does not include required certificate #{required_certificate_id}"
+            end
 
             if profile_expiration_date
               expiration = Time.parse(profile_expiration_date)
@@ -76,7 +83,7 @@ module Fastlane
               issuer_id: issuer_id,
               key_content: key_content,
               key_file_path: key_file_path,
-              types: ['IOS_DEVELOPMENT', 'IOS_DISTRIBUTION']
+              types: ['IOS_DEVELOPMENT', 'IOS_DISTRIBUTION', 'DISTRIBUTION']
             )
 
             cert = certs.find { |c| c['id'] == certificate_id }
