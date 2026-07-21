@@ -155,7 +155,8 @@ module Fastlane
                 issuer_id: issuer_id,
                 key_content: key_content,
                 key_file_path: key_file_path,
-                project_path: project_path
+                project_path: project_path,
+                required_certificate_id: resolved_certificate_id
               )
 
               best_profile = selection_result[:best_profile]
