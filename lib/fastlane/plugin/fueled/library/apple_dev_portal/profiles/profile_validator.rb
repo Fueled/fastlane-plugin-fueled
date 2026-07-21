@@ -76,7 +76,7 @@ module Fastlane
               issuer_id: issuer_id,
               key_content: key_content,
               key_file_path: key_file_path,
-              types: ['IOS_DEVELOPMENT', 'IOS_DISTRIBUTION']
+              types: ['IOS_DEVELOPMENT', 'IOS_DISTRIBUTION', 'DISTRIBUTION']
             )
 
             cert = certs.find { |c| c['id'] == certificate_id }

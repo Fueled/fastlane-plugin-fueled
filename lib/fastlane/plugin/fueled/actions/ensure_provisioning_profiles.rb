@@ -23,7 +23,8 @@ module Fastlane
           certificate_id: params[:certificate_id],
           app_store_connect_app_id: params[:app_store_connect_app_id],
           project_path: params[:project_path],
-          search_path: params[:search_path]
+          search_path: params[:search_path],
+          distribution_certificate_type: params[:distribution_certificate_type]
         )
 
         if profile_info
@@ -101,6 +102,20 @@ module Fastlane
             description: "App Store Connect app ID (for multiple apps with same bundle ID)",
             is_string: true,
             optional: true
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :distribution_certificate_type,
+            env_name: "DISTRIBUTION_CERTIFICATE_TYPE",
+            description: "Distribution certificate type when auto-selecting a cert: 'IOS_DISTRIBUTION' (legacy) or 'DISTRIBUTION' (Apple Distribution). Ignored when certificate_id is provided.",
+            is_string: true,
+            optional: true,
+            default_value: "IOS_DISTRIBUTION",
+            verify_block: proc do |value|
+              valid_types = %w[IOS_DISTRIBUTION DISTRIBUTION]
+              unless valid_types.include?(value)
+                UI.user_error!("Invalid distribution_certificate_type: #{value}. Must be one of: #{valid_types.join(', ')}")
+              end
+            end
           ),
           FastlaneCore::ConfigItem.new(
             key: :key_id,

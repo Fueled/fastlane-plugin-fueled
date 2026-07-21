@@ -21,7 +21,7 @@ module Fastlane
           module_function
 
           # Create a new distribution certificate
-          def create_new_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: "login", keychain_password: "", project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution')
+          def create_new_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: "login", keychain_password: "", project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution', distribution_certificate_type: 'IOS_DISTRIBUTION')
             unless encryption_key && !encryption_key.strip.empty?
               encryption_key = SecureRandom.base64(32)
               UI.message("Generated new encryption key for certificate storage")
@@ -49,7 +49,7 @@ module Fastlane
               key_content: key_content,
               key_file_path: key_file_path,
               csr_content: csr_data[:csr_pem],
-              certificate_type: 'IOS_DISTRIBUTION'
+              certificate_type: distribution_certificate_type
             )
 
             unless asc_cert
