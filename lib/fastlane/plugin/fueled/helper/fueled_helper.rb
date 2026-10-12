@@ -1,5 +1,6 @@
 require 'fastlane/action'
 require 'fastlane_core/ui/ui'
+require 'shellwords'
 require 'fastlane/plugin/versioning'
 require 'fastlane/plugin/appcenter'
 
@@ -28,6 +29,13 @@ module Fastlane
         tag
       end
       
+      # Returns a git pathspec suffix (eg: " -- 'ios' 'shared'") limiting a git command to the given paths,
+      # or an empty string when no paths are given.
+      def self.git_paths_argument(paths)
+        return "" if paths.nil? || paths.empty?
+        " -- " + paths.map(&:shellescape).join(" ")
+      end
+
       # Returns the new build number, by bumping the last git tag build number.
       def self.new_build_number(filter:)
         last_tag = fetch_last_tag(filter: filter)

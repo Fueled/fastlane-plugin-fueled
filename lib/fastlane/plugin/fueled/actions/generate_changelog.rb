@@ -25,13 +25,14 @@ module Fastlane
     end
 
     class GenerateChangelogAction < Action
-      def self.git_retrieve_commits(revision1, revision2)
+      def self.git_retrieve_commits(revision1, revision2, paths = nil)
         git_format = $git_format_info.map { |info| $git_format_selectors[info] }.join("\t")
-        
+        paths_argument = Helper::FueledHelper.git_paths_argument(paths)
+
         if FastlaneCore::Helper.linux?
-          return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\" | tac`
+          return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\"#{paths_argument} | tac`
         else
-          return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\" | tail -r`
+          return `git log --no-merges "#{revision1}"..#{revision2} --format=\"#{git_format}\"#{paths_argument} | tail -r`
         end
       end
 
@@ -39,9 +40,9 @@ module Fastlane
         last_config_tag = other_action.last_git_tag(pattern: "v*-#{params[:build_config]}") || ""
         if last_config_tag.empty?
           first_commit = sh("git rev-list --max-parents=0 HEAD | xargs echo -n")
-          logs = git_retrieve_commits(first_commit, "HEAD")
+          logs = git_retrieve_commits(first_commit, "HEAD", params[:paths])
         else
-          logs = git_retrieve_commits(last_config_tag, "HEAD")
+          logs = git_retrieve_commits(last_config_tag, "HEAD", params[:paths])
         end
         changelog_github = format_logs(logs, :github, true, params[:ticket_base_url])
         changelog_slack_dev = format_logs(logs, :slack, true, params[:ticket_base_url])
@@ -64,7 +65,7 @@ module Fastlane
       end
 
       def self.details
-        "Changelog is made of commits between now, and the previous tag using the same build configuration"
+        "Changelog is made of commits between now, and the previous tag using the same build configuration. When paths are given, only commits touching those paths are included"
       end
 
       def self.available_options
@@ -82,6 +83,13 @@ module Fastlane
             description: "The base url of the tickets for eg. https://linear.app/fueled/issue/",
             optional: true,
             default_value: "https://linear.app/fueled/issue/"
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :paths,
+            env_name: "FUELED_CHANGE_PATHS",
+            description: "Only include commits touching these paths (eg: ['ios']). Includes all commits when empty",
+            type: Array,
+            optional: true
           ),
         ]
       end
