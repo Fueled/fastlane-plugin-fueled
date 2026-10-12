@@ -264,12 +264,14 @@ to set them to the project accordingly (`set_app_versions_plist_ios` and `set_ap
 
 Generate a changelog.
 
-Changelog is made of commits between now, and the previous tag using the same build configuration
+Changelog is made of commits between now, and the previous tag using the same build configuration.
+When `paths` is given, only commits touching those paths are included (useful in a monorepo).
 
 | Key & Env Var | Description                                                     | Default Value
 |-----------------|-----------------------------------------------------------------|---|
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug)                             | `Debug` |
 | `ticket_base_url` <br/> `TICKET_BASE_URL` | The base url for tickets (eg. https://linear.app/fueled/issue/) | `https://linear.app/fueled/issue/` |
+| `paths` <br/> `FUELED_CHANGE_PATHS` | Only include commits touching these paths (eg: `["ios"]`) | |
 
 #### `generate_secrets_ios`
 
@@ -325,12 +327,14 @@ Pulls and adds the WWDR Apple Certificate to the given keychain
 Defines if the build is necessary by looking up changes since the last tag for the same build
 configuration.<br/>
 If the number of revisions between the last tag matching the given build configuration, and HEAD is
-higher than 0, the action will return true.
+higher than 0, the action will return true.<br/>
+When `paths` is given, only revisions touching those paths are counted (useful in a monorepo).
 
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `build_config` <br/> `BUILD_CONFIGURATION` | The build configuration (eg: Debug) | |
 | `force_necessary` <br/> `FORCE_NECESSARY` | If the lane should continue, regardless of changes being made or not | `false` |
+| `paths` <br/> `FUELED_CHANGE_PATHS` | Only count revisions touching these paths (eg: `["ios"]`) | |
 
 #### `move_linear_tickets`
 
