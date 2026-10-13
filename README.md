@@ -306,7 +306,7 @@ Encrypt an existing distribution certificate (`.p12`) into `fastlane/certificate
 | Key & Env Var | Description | Default Value
 |-----------------|--------------------|---|
 | `p12_path` <br/> `CERTIFICATE_P12_PATH` | Path to the `.p12` file (certificate and private key) | |
-| `p12_password` <br/> `CERTIFICATE_P12_PASSWORD` | Password of the `.p12` file | |
+| `p12_password` <br/> `CERTIFICATE_P12_PASSWORD` | Password of the `.p12` file (asked with hidden input if not set) | |
 | `encryption_key` <br/> `CERTIFICATE_ENCRYPTION_KEY` | Encryption key for certificate storage (generated if not set) | |
 | `certificate_name` <br/> `CERTIFICATE_NAME` | Certificate name for storage | `distribution` |
 | `project_root` <br/> `PROJECT_ROOT` | Project root directory (for encrypted certificate storage) | current directory |
@@ -315,8 +315,8 @@ Encrypt an existing distribution certificate (`.p12`) into `fastlane/certificate
 
 Set `SIGNING_SOURCE=repository` to sign with a certificate and profile committed in the repository, e.g. for an enterprise (in-house) account:
 
-1. Run `bundle exec fastlane run encrypt_certificate p12_path:"Enterprise.p12" p12_password:"..."` once, and commit `fastlane/certificates/distribution.p12.enc` and `distribution.yaml`.
-2. Commit the provisioning profile to `fastlane/profiles/`.
+1. Run `bundle exec fastlane run encrypt_certificate p12_path:"Enterprise.p12"` once. It asks for the `.p12` password with hidden input (or reads `CERTIFICATE_P12_PASSWORD`), so the password doesn't end up in your shell history. Commit `fastlane/certificates/distribution.p12.enc` and `fastlane/certificates/distribution.yaml`.
+2. Commit the provisioning profile to `fastlane/profiles/`. It must be for the app's bundle ID and include the certificate from step 1; `ensure_provisioning_profiles` checks both.
 3. Set `CERTIFICATE_ENCRYPTION_KEY` in your CI/CD secrets.
 
 `ensure_certificates` and `ensure_provisioning_profiles` then restore and install them, locally and on CI/CD, without App Store Connect credentials.
