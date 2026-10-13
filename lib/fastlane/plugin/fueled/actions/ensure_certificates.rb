@@ -23,7 +23,8 @@ module Fastlane
           project_root: params[:project_root],
           encryption_key: params[:encryption_key],
           certificate_name: params[:certificate_name],
-          distribution_certificate_type: params[:distribution_certificate_type]
+          distribution_certificate_type: params[:distribution_certificate_type],
+          restore_only: params[:signing_source] == 'repository'
         )
 
         if certificate_info
@@ -171,6 +172,21 @@ module Fastlane
               valid_types = %w[IOS_DISTRIBUTION DISTRIBUTION]
               unless valid_types.include?(value)
                 UI.user_error!("Invalid distribution_certificate_type: #{value}. Must be one of: #{valid_types.join(', ')}")
+              end
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :signing_source,
+            env_name: "SIGNING_SOURCE",
+            description: "Where signing comes from: 'app_store_connect' (fetch/create through App Store Connect) or 'repository' " \
+                         "(only restore the encrypted certificate committed in fastlane/certificates, never call App Store Connect)",
+            is_string: true,
+            optional: true,
+            default_value: "app_store_connect",
+            verify_block: proc do |value|
+              valid_sources = %w[app_store_connect repository]
+              unless valid_sources.include?(value)
+                UI.user_error!("Invalid signing_source: #{value}. Must be one of: #{valid_sources.join(', ')}")
               end
             end
           ),

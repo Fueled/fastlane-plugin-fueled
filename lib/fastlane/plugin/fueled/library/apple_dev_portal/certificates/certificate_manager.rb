@@ -28,9 +28,10 @@ module Fastlane
           # - keychain_password: String, keychain password
           # - project_root: String, project root directory (default: current directory)
           # - encryption_key: String, encryption key for certificate storage (from CERTIFICATE_ENCRYPTION_KEY env var)
+          # - restore_only: Boolean, only restore from encrypted storage and never call App Store Connect, like on CI/CD
           #
           # Returns: Hash with certificate info or nil if creation failed
-          def ensure_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: nil, keychain_password: nil, project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution', distribution_certificate_type: 'IOS_DISTRIBUTION')
+          def ensure_distribution_certificate(key_id: nil, issuer_id: nil, key_content: nil, key_file_path: nil, keychain_name: nil, keychain_password: nil, project_root: Dir.pwd, encryption_key: nil, certificate_name: 'distribution', distribution_certificate_type: 'IOS_DISTRIBUTION', restore_only: false)
             unless keychain_name
               KeychainManager.ensure_accessible
               keychain_name = KeychainManager.keychain_name
@@ -62,8 +63,12 @@ module Fastlane
 
             UI.message("🔍 Checking for existing distribution certificates...")
 
-            if is_ci
-              UI.message("🤖 CI/CD Mode - will only restore from encrypted storage")
+            if is_ci || restore_only
+              if restore_only
+                UI.message("📦 Repository signing source - will only restore from encrypted storage")
+              else
+                UI.message("🤖 CI/CD Mode - will only restore from encrypted storage")
+              end
               
               unless encryption_key && !encryption_key.strip.empty?
                 UI.user_error!(
