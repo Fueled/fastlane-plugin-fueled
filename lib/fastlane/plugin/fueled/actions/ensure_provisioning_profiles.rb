@@ -1,5 +1,6 @@
 require_relative '../helper/fueled_helper'
 require_relative '../library/apple_dev_portal/profiles/profile_manager'
+require_relative '../library/apple_dev_portal/profiles/repository_profile_installer'
 require_relative '../library/xcode/project_updater'
 
 module Fastlane
@@ -10,6 +11,19 @@ module Fastlane
 
     class EnsureProvisioningProfilesAction < Action
       def self.run(params)
+        if params[:signing_source] == 'repository'
+          UI.message("Installing the provisioning profile committed in the repository...")
+          profile_info = Helper::AppleDevPortal::Profiles::RepositoryProfileInstaller.install(
+            bundle_id: params[:bundle_id],
+            profile_path: params[:profile_path],
+            project_path: params[:project_path],
+            search_path: params[:search_path]
+          )
+          Actions.lane_context[SharedValues::PROVISIONING_PROFILE_INFO] = profile_info
+          UI.success("✓ Provisioning profile ensured successfully!")
+          return profile_info
+        end
+
         UI.message("Ensuring provisioning profiles...")
 
           profile_info = Helper::AppleDevPortal::Profiles::ProfileManager.ensure_profile(
@@ -61,6 +75,29 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(
+            key: :signing_source,
+            env_name: "SIGNING_SOURCE",
+            description: "Where signing comes from: 'app_store_connect' (fetch/create through App Store Connect) or 'repository' " \
+                         "(install the profile committed in fastlane/profiles, never call App Store Connect)",
+            is_string: true,
+            optional: true,
+            default_value: "app_store_connect",
+            verify_block: proc do |value|
+              valid_sources = %w[app_store_connect repository]
+              unless valid_sources.include?(value)
+                UI.user_error!("Invalid signing_source: #{value}. Must be one of: #{valid_sources.join(', ')}")
+              end
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :profile_path,
+            env_name: "PROVISIONING_PROFILE_PATH",
+            description: "Path to the committed .mobileprovision used when signing_source is 'repository' " \
+                         "(default: the only .mobileprovision in fastlane/profiles)",
+            is_string: true,
+            optional: true
+          ),
           FastlaneCore::ConfigItem.new(
             key: :bundle_id,
             env_name: "BUNDLE_ID",
