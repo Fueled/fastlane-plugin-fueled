@@ -30,6 +30,7 @@ Fueled specific.
     - [upload_to_app_center](#user-content-upload_to_app_center)
 * iOS
     - [define_versions_ios](#user-content-define_versions_ios)
+    - [encrypt_certificate](#user-content-encrypt_certificate)
     - [ensure_certificates](#user-content-ensure_certificates)
     - [ensure_provisioning_profiles](#user-content-ensure_provisioning_profiles)
     - [generate_secrets_ios](#generate_secrets_ios)
@@ -296,6 +297,29 @@ Ensure iOS distribution certificates exist locally and on App Store Connect. Thi
 | `key_file_path` <br/> `APP_STORE_CONNECT_KEY_FILE` | Path to App Store Connect private key file (.p8) | |
 | `keychain_name` <br/> `KEYCHAIN_NAME` | Keychain name to install certificates to | `login` |
 | `keychain_password` <br/> `KEYCHAIN_PASSWORD` | Keychain password | |
+| `signing_source` <br/> `SIGNING_SOURCE` | `app_store_connect`, or `repository` to only restore the encrypted certificate committed in `fastlane/certificates` and never call App Store Connect (see [Signing without App Store Connect](#user-content-signing-without-app-store-connect)) | `app_store_connect` |
+
+#### `encrypt_certificate`
+
+Encrypt an existing distribution certificate (`.p12`) into `fastlane/certificates`, in the same format `ensure_certificates` creates. Use it for certificates that aren't managed through App Store Connect, e.g. an enterprise (in-house) certificate kept in a password manager. Run it locally; if `CERTIFICATE_ENCRYPTION_KEY` isn't set, a new key is generated and copied to the clipboard.
+
+| Key & Env Var | Description | Default Value
+|-----------------|--------------------|---|
+| `p12_path` <br/> `CERTIFICATE_P12_PATH` | Path to the `.p12` file (certificate and private key) | |
+| `p12_password` <br/> `CERTIFICATE_P12_PASSWORD` | Password of the `.p12` file | |
+| `encryption_key` <br/> `CERTIFICATE_ENCRYPTION_KEY` | Encryption key for certificate storage (generated if not set) | |
+| `certificate_name` <br/> `CERTIFICATE_NAME` | Certificate name for storage | `distribution` |
+| `project_root` <br/> `PROJECT_ROOT` | Project root directory (for encrypted certificate storage) | current directory |
+
+#### Signing without App Store Connect
+
+Set `SIGNING_SOURCE=repository` to sign with a certificate and profile committed in the repository, e.g. for an enterprise (in-house) account:
+
+1. Run `bundle exec fastlane run encrypt_certificate p12_path:"Enterprise.p12" p12_password:"..."` once, and commit `fastlane/certificates/distribution.p12.enc` and `distribution.yaml`.
+2. Commit the provisioning profile to `fastlane/profiles/`.
+3. Set `CERTIFICATE_ENCRYPTION_KEY` in your CI/CD secrets.
+
+`ensure_certificates` and `ensure_provisioning_profiles` then restore and install them, locally and on CI/CD, without App Store Connect credentials.
 
 #### `ensure_provisioning_profiles`
 
@@ -312,6 +336,8 @@ Ensure iOS provisioning profiles exist on App Store Connect and are installed lo
 | `issuer_id` <br/> `APP_STORE_CONNECT_ISSUER_ID` | App Store Connect Issuer ID (UUID) | |
 | `key_content` <br/> `APP_STORE_CONNECT_KEY_CONTENT` | App Store Connect private key content (p8 file content as string) | |
 | `key_file_path` <br/> `APP_STORE_CONNECT_KEY_FILE` | Path to App Store Connect private key file (.p8) | |
+| `signing_source` <br/> `SIGNING_SOURCE` | `app_store_connect`, or `repository` to install the profile committed in `fastlane/profiles` without calling App Store Connect | `app_store_connect` |
+| `profile_path` <br/> `PROVISIONING_PROFILE_PATH` | Committed `.mobileprovision` used when `signing_source` is `repository` | the only `.mobileprovision` in `fastlane/profiles` |
 
 #### `install_wwdr_certificate`
 
