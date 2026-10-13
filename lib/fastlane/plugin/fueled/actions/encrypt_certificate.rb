@@ -10,6 +10,7 @@ module Fastlane
     class EncryptCertificateAction < Action
       # ensure_certificates restores the stored p12 with this password.
       STORAGE_P12_PASSWORD = 'fastlane'.freeze
+      CERTIFICATES_DIR = Helper::AppleDevPortal::Certificates::Storage::CertificateStorage::CERTIFICATES_DIR
 
       def self.run(params)
         UI.user_error!("encrypt_certificate must be run locally, not on CI/CD") if FastlaneCore::Helper.is_ci?
@@ -30,7 +31,11 @@ module Fastlane
 
         encryption_key = params[:encryption_key]
         generated_key = encryption_key.nil? || encryption_key.strip.empty?
-        encryption_key = SecureRandom.base64(32) if generated_key
+        if generated_key
+          encryption_key = SecureRandom.base64(32)
+          # Copy before writing anything: if the clipboard fails, no files are left encrypted with a lost key.
+          GetCertificateEncryptionKeyAction.copy_to_clipboard(encryption_key)
+        end
 
         Helper::AppleDevPortal::Certificates::Storage::CertificateStorage.save_encrypted(
           storage_p12.to_der,
@@ -39,15 +44,16 @@ module Fastlane
           encryption_key,
           certificate_name: params[:certificate_name]
         )
-        UI.success("✓ Saved encrypted certificate '#{metadata['common_name']}' to fastlane/certificates/#{params[:certificate_name]}.p12.enc")
+        encrypted_path = File.join(CERTIFICATES_DIR, "#{params[:certificate_name]}.p12.enc")
+        metadata_path = File.join(CERTIFICATES_DIR, "#{params[:certificate_name]}.yaml")
+        UI.success("✓ Saved encrypted certificate '#{metadata['common_name']}' to #{encrypted_path}")
 
         if generated_key
-          GetCertificateEncryptionKeyAction.copy_to_clipboard(encryption_key)
           UI.important("A new encryption key was generated and copied to your clipboard. " \
                        "Save it as CERTIFICATE_ENCRYPTION_KEY in your CI/CD secrets and password manager; it is not stored anywhere else.")
         end
 
-        UI.message("Commit fastlane/certificates/#{params[:certificate_name]}.p12.enc and #{params[:certificate_name]}.yaml")
+        UI.message("Commit #{encrypted_path} and #{metadata_path}")
         metadata
       end
 
@@ -114,11 +120,10 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :p12_password,
             env_name: "CERTIFICATE_P12_PASSWORD",
-            description: "Password of the .p12 file",
+            description: "Password of the .p12 file (asked with hidden input if not set)",
             is_string: true,
-            optional: true,
-            sensitive: true,
-            default_value: ""
+            optional: false,
+            sensitive: true
           ),
           FastlaneCore::ConfigItem.new(
             key: :encryption_key,
@@ -161,9 +166,9 @@ module Fastlane
 
       def self.example_code
         [
+          '# Asks for the .p12 password with hidden input (or reads CERTIFICATE_P12_PASSWORD)',
           'encrypt_certificate(',
-          '  p12_path: "~/Downloads/Enterprise Distribution.p12",',
-          '  p12_password: "secret"',
+          '  p12_path: "~/Downloads/Enterprise Distribution.p12"',
           ')'
         ]
       end
