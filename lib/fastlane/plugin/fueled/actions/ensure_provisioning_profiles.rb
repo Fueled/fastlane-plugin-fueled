@@ -1,6 +1,7 @@
 require_relative '../helper/fueled_helper'
 require_relative '../library/apple_dev_portal/profiles/profile_manager'
 require_relative '../library/apple_dev_portal/profiles/repository_profile_installer'
+require_relative 'ensure_certificates'
 require_relative '../library/xcode/project_updater'
 
 module Fastlane
@@ -17,7 +18,9 @@ module Fastlane
             bundle_id: params[:bundle_id],
             profile_path: params[:profile_path],
             project_path: params[:project_path],
-            search_path: params[:search_path]
+            search_path: params[:search_path],
+            # Set by ensure_certificates: the profile must include that certificate.
+            certificate_sha1: Actions.lane_context[SharedValues::CERTIFICATE_INFO]&.dig(:sha1)
           )
           Actions.lane_context[SharedValues::PROVISIONING_PROFILE_INFO] = profile_info
           UI.success("✓ Provisioning profile ensured successfully!")
