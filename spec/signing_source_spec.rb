@@ -23,7 +23,8 @@ module SigningSpecHelpers
     [path, cert]
   end
 
-  def profile_plist(uuid:, name:, bundle_id:, expiration:)
+  def profile_plist(uuid:, name:, bundle_id:, expiration:, certificates: [])
+    certificate_data = certificates.map { |cert| "<data>#{[cert.to_der].pack('m0')}</data>" }.join
     <<~PLIST
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -34,6 +35,7 @@ module SigningSpecHelpers
         <key>TeamIdentifier</key><array><string>ABCDE12345</string></array>
         <key>ExpirationDate</key><date>#{expiration.utc.strftime('%Y-%m-%dT%H:%M:%SZ')}</date>
         <key>Entitlements</key><dict><key>application-identifier</key><string>ABCDE12345.#{bundle_id}</string></dict>
+        <key>DeveloperCertificates</key><array>#{certificate_data}</array>
       </dict>
       </plist>
     PLIST
@@ -102,6 +104,28 @@ describe Fastlane::Actions::EncryptCertificateAction do
       expect(copied).not_to be_nil
       expect(storage.restore_encrypted(dir, copied)).not_to be_nil
     end
+  end
+
+  it 'writes nothing when the generated key cannot be copied to the clipboard' do
+    Dir.mktmpdir do |dir|
+      p12_path, = write_p12(dir, password: 'secret')
+      allow(Fastlane::Actions::GetCertificateEncryptionKeyAction).to receive(:copy_to_clipboard)
+        .and_raise(FastlaneCore::Interface::FastlaneError.new, 'no clipboard')
+
+      expect do
+        described_class.run(p12_path: p12_path, p12_password: 'secret', encryption_key: nil,
+                            certificate_name: 'distribution', project_root: dir)
+      end.to raise_error(FastlaneCore::Interface::FastlaneError)
+      expect(storage.encrypted_exists?(dir)).to be(false)
+      expect(Dir).not_to exist(File.join(dir, 'fastlane', 'certificates'))
+    end
+  end
+
+  it 'requires the p12 password, so fastlane asks for it with hidden input' do
+    option = described_class.available_options.find { |o| o.key == :p12_password }
+    expect(option.optional).to be(false)
+    expect(option.sensitive).to be(true)
+    expect(option.default_value).to be_nil
   end
 
   it 'rejects a wrong p12 password' do
@@ -174,32 +198,41 @@ describe Fastlane::Helper::AppleDevPortal::Profiles::RepositoryProfileInstaller 
     end
   end
 
-  def write_profile(dir, expiration: Time.now + (30 * 24 * 3600), file_name: 'enterprise.mobileprovision')
+  let(:uuid) { '0E8F5B2C-1A2B-4C3D-9E8F-0123456789AB' }
+
+  def write_profile(dir, expiration: Time.now + (30 * 24 * 3600), file_name: 'enterprise.mobileprovision',
+                    uuid: '0E8F5B2C-1A2B-4C3D-9E8F-0123456789AB', bundle_id: 'com.fueled.app', certificates: [])
     profiles_dir = File.join(dir, 'fastlane', 'profiles')
     FileUtils.mkdir_p(profiles_dir)
-    File.write(File.join(profiles_dir, file_name),
-               profile_plist(uuid: 'UUID-1234', name: 'Enterprise Profile', bundle_id: 'com.fueled.app', expiration: expiration))
+    path = File.join(profiles_dir, file_name)
+    File.write(path, profile_plist(uuid: uuid, name: 'Enterprise Profile', bundle_id: bundle_id,
+                                   expiration: expiration, certificates: certificates))
+    path
   end
+
+  def install(dir, **options)
+    described_class.install(bundle_id: 'com.fueled.app', project_path: 'App.xcodeproj', search_path: dir, **options)
+  end
+
+  before { allow(Fastlane::Helper::AppleDevPortal::Profiles::ProfileDownloader).to receive(:update_xcode_project) }
 
   it 'installs the committed profile and points the Xcode project to it' do
     Dir.mktmpdir do |dir|
       write_profile(dir)
-      allow(Fastlane::Helper::AppleDevPortal::Profiles::ProfileDownloader).to receive(:update_xcode_project)
 
       info = described_class.install(bundle_id: 'com.fueled.app', project_path: File.join(dir, 'App.xcodeproj'), search_path: dir)
 
-      expect(info).to include(uuid: 'UUID-1234', name: 'Enterprise Profile', team_id: 'ABCDE12345')
-      expect(File).to exist(File.join(ENV['HOME'], 'Library/MobileDevice/Provisioning Profiles/UUID-1234.mobileprovision'))
+      expect(info).to include(uuid: uuid, name: 'Enterprise Profile', team_id: 'ABCDE12345')
+      expect(File).to exist(File.join(ENV['HOME'], "Library/MobileDevice/Provisioning Profiles/#{uuid}.mobileprovision"))
       expect(Fastlane::Helper::AppleDevPortal::Profiles::ProfileDownloader).to have_received(:update_xcode_project)
-        .with(project_path: File.join(dir, 'App.xcodeproj'), bundle_id: 'com.fueled.app', profile_uuid: 'UUID-1234', team_id: 'ABCDE12345')
+        .with(project_path: File.join(dir, 'App.xcodeproj'), bundle_id: 'com.fueled.app', profile_uuid: uuid, team_id: 'ABCDE12345')
     end
   end
 
   it 'rejects an expired profile' do
     Dir.mktmpdir do |dir|
       write_profile(dir, expiration: Time.now - 60)
-      expect { described_class.install(bundle_id: 'com.fueled.app', project_path: 'App.xcodeproj', search_path: dir) }
-        .to raise_error(FastlaneCore::Interface::FastlaneError, /expired/)
+      expect { install(dir) }.to raise_error(FastlaneCore::Interface::FastlaneError, /expired/)
     end
   end
 
@@ -207,8 +240,59 @@ describe Fastlane::Helper::AppleDevPortal::Profiles::RepositoryProfileInstaller 
     Dir.mktmpdir do |dir|
       write_profile(dir)
       write_profile(dir, file_name: 'other.mobileprovision')
-      expect { described_class.install(bundle_id: 'com.fueled.app', project_path: 'App.xcodeproj', search_path: dir) }
-        .to raise_error(FastlaneCore::Interface::FastlaneError, /profile_path/)
+      expect { install(dir) }.to raise_error(FastlaneCore::Interface::FastlaneError, /profile_path/)
+    end
+  end
+
+  it 'passes the profile path literally, so a crafted file name cannot run commands' do
+    Dir.mktmpdir do |dir|
+      write_profile(dir, file_name: 'x$(touch pwned)`touch pwned`.mobileprovision')
+      Dir.chdir(dir) { install(dir) }
+      expect(File).not_to exist(File.join(dir, 'pwned'))
+    end
+  end
+
+  it 'rejects a profile whose UUID is not a UUID, so it cannot write outside the profiles folder' do
+    Dir.mktmpdir do |dir|
+      write_profile(dir, uuid: '../../escape')
+      expect { install(dir) }.to raise_error(FastlaneCore::Interface::FastlaneError, /invalid UUID/)
+    end
+  end
+
+  it 'rejects a profile for another bundle id' do
+    Dir.mktmpdir do |dir|
+      write_profile(dir, bundle_id: 'com.other.app')
+      expect { install(dir) }.to raise_error(FastlaneCore::Interface::FastlaneError, /doesn't match/)
+    end
+  end
+
+  it 'accepts a wildcard profile only when its prefix matches the bundle id' do
+    Dir.mktmpdir do |dir|
+      write_profile(dir, bundle_id: 'com.fueled.*')
+      expect { install(dir) }.not_to raise_error
+    end
+    Dir.mktmpdir do |dir|
+      write_profile(dir, bundle_id: 'com.acme.*')
+      expect { install(dir) }.to raise_error(FastlaneCore::Interface::FastlaneError, /doesn't match/)
+    end
+  end
+
+  it 'accepts a profile that includes the restored certificate' do
+    Dir.mktmpdir do |dir|
+      _, cert = self_signed_certificate(common_name: 'iPhone Distribution: Fueled')
+      write_profile(dir, certificates: [cert])
+      sha1 = OpenSSL::Digest::SHA1.hexdigest(cert.to_der)
+      expect { install(dir, certificate_sha1: sha1) }.not_to raise_error
+    end
+  end
+
+  it 'rejects a profile that does not include the restored certificate' do
+    Dir.mktmpdir do |dir|
+      _, cert = self_signed_certificate(common_name: 'iPhone Distribution: Fueled')
+      _, other = self_signed_certificate(common_name: 'iPhone Distribution: Other')
+      write_profile(dir, certificates: [other])
+      expect { install(dir, certificate_sha1: OpenSSL::Digest::SHA1.hexdigest(cert.to_der)) }
+        .to raise_error(FastlaneCore::Interface::FastlaneError, /doesn't include the signing certificate/)
     end
   end
 end
