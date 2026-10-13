@@ -2,6 +2,8 @@
 
 require 'plist'
 require 'fileutils'
+require 'open3'
+require 'openssl'
 require 'time'
 require_relative 'profile_downloader'
 require_relative '../../xcode/project_detector'
@@ -17,6 +19,7 @@ module Fastlane
           module_function
 
           PROFILES_DIR = 'fastlane/profiles'
+          UUID_FORMAT = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
           # Install a committed provisioning profile and point the Xcode project to it
           #
@@ -25,14 +28,15 @@ module Fastlane
           # - profile_path: String, optional path to the .mobileprovision (default: the only one in fastlane/profiles)
           # - project_path: String, optional path to Xcode project/workspace (auto-detected from bundle_id if not provided)
           # - search_path: String, directory to search for the profile and the Xcode project (default: current directory)
+          # - certificate_sha1: String, optional SHA-1 of the signing certificate the profile must include
           #
           # Returns: Hash with profile info (same keys as ProfileManager.ensure_profile)
-          def install(bundle_id:, profile_path: nil, project_path: nil, search_path: Dir.pwd)
+          def install(bundle_id:, profile_path: nil, project_path: nil, search_path: Dir.pwd, certificate_sha1: nil)
             profile_path ||= default_profile_path(search_path)
             UI.user_error!("Provisioning profile not found at #{profile_path}") unless File.exist?(profile_path)
 
             profile = parse(profile_path)
-            validate(profile, bundle_id: bundle_id, profile_path: profile_path)
+            validate(profile, bundle_id: bundle_id, profile_path: profile_path, certificate_sha1: certificate_sha1)
             uuid = profile['UUID']
             name = profile['Name']
             team_id = Array(profile['TeamIdentifier']).first
@@ -56,17 +60,41 @@ module Fastlane
             }
           end
 
-          def validate(profile, bundle_id:, profile_path:)
+          def validate(profile, bundle_id:, profile_path:, certificate_sha1: nil)
             name = profile['Name']
+            # The UUID becomes the installed file name, so only accept a real UUID.
+            UI.user_error!("Provisioning profile #{profile_path} has an invalid UUID: #{profile['UUID'].inspect}") unless profile['UUID'].to_s.match?(UUID_FORMAT)
+
             expiration = profile['ExpirationDate']
             if expiration && expiration.to_time < Time.now
               UI.user_error!("Provisioning profile '#{name}' expired on #{expiration.to_time.strftime('%Y-%m-%d')}. Replace #{profile_path} with a valid one.")
             end
 
             application_identifier = profile.dig('Entitlements', 'application-identifier').to_s
-            return if application_identifier.end_with?(".#{bundle_id}", '.*')
+            unless matches_bundle_id?(application_identifier, bundle_id)
+              UI.user_error!("Provisioning profile '#{name}' is for '#{application_identifier}', which doesn't match '#{bundle_id}'")
+            end
 
-            UI.important("⚠ Provisioning profile '#{name}' is for '#{application_identifier}', not for '#{bundle_id}'")
+            return if certificate_sha1.nil? || certificate_sha1.empty?
+            return if profile_certificate_sha1s(profile).include?(certificate_sha1.upcase)
+
+            UI.user_error!("Provisioning profile '#{name}' doesn't include the signing certificate (SHA-1 #{certificate_sha1}). " \
+                           "Replace #{profile_path} with a profile made for that certificate.")
+          end
+
+          # application-identifier is "<TEAM_ID>.<bundle id>", where the bundle id part may end with a "*" wildcard.
+          def matches_bundle_id?(application_identifier, bundle_id)
+            identifier = application_identifier.split('.', 2)[1].to_s
+            return identifier == bundle_id unless identifier.end_with?('*')
+
+            bundle_id.start_with?(identifier.chomp('*'))
+          end
+
+          def profile_certificate_sha1s(profile)
+            Array(profile['DeveloperCertificates']).map do |certificate|
+              der = certificate.respond_to?(:read) ? certificate.read : certificate.to_s
+              OpenSSL::Digest::SHA1.hexdigest(der).upcase
+            end
           end
 
           # Returns the project path that was updated, or nil when no project has the bundle id.
@@ -90,13 +118,21 @@ module Fastlane
 
           # Decode the signed .mobileprovision into its plist.
           def parse(profile_path)
-            plist_xml = `security cms -D -i "#{profile_path}" 2>/dev/null`
-            plist_xml = extract_plist(File.binread(profile_path)) unless $?.success? && !plist_xml.strip.empty?
+            plist_xml = decode_with_security(profile_path)
+            plist_xml = extract_plist(File.binread(profile_path)) if plist_xml.nil? || plist_xml.strip.empty?
 
             plist = Plist.parse_xml(plist_xml.to_s)
             UI.user_error!("Could not read provisioning profile at #{profile_path}") unless plist && plist['UUID']
 
             plist
+          end
+
+          # Arguments are passed literally (no shell), so the path can't run commands.
+          def decode_with_security(profile_path)
+            output, _error, status = Open3.capture3('security', 'cms', '-D', '-i', profile_path)
+            status.success? ? output : nil
+          rescue Errno::ENOENT
+            nil
           end
 
           # The plist is embedded as plain text in the CMS envelope, so it can be read without `security` (e.g. on Linux).
